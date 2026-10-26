@@ -3,6 +3,7 @@
 import Image from "next/image";
 import { useEffect, useRef, useState } from "react";
 import ProjectOverview from "./ProjectOverview";
+import ContactSection from "./ContactSection";
 
 function Arrow({ down = false }) {
   return <svg viewBox="0 0 24 24" fill="none" aria-hidden="true" className={down ? "arrow arrow-down" : "arrow"}>
@@ -49,7 +50,7 @@ export default function HeroExperience() {
           <svg className="wordmark-symbol" viewBox="0 0 36 36" fill="none" aria-hidden="true"><path d="M18 2v32M2 18h32M6.7 6.7l22.6 22.6M6.7 29.3L29.3 6.7" stroke="currentColor" strokeWidth="2" /><circle cx="18" cy="18" r="7" fill="currentColor" /></svg>
           <span>Ideas in Motion<span className="edition">A personal edition</span></span>
         </a>
-        <nav aria-label="Main navigation"><a href="#intro">Intro <span>01</span></a><a href="#about">The maker <span>02</span></a><a href="#work">Work <span>03</span></a></nav>
+        <nav aria-label="Main navigation"><a href="#intro">Intro <span>01</span></a><a href="#about">The maker <span>02</span></a><a href="#work">Work <span>03</span></a><a href="#contact">Contact <span>04</span></a></nav>
         <span className="header-note">ART MEETS TECHNOLOGY<span>VOL. 01 — 2026</span></span>
       </header>
       <div className="stage" ref={stage}>
@@ -102,12 +103,13 @@ export default function HeroExperience() {
         <footer className="scene-footer">
           <span className="footer-discipline">CREATIVE DEVELOPMENT<br />& DIGITAL EXPERIENCES</span>
           <div className="scroll-cue" aria-hidden="true"><span className="scroll-line" /><span data-caption>Scroll to bring worlds together</span><Arrow down /></div>
-          <span className="chapter-count" data-chapter>01 / 03</span>
+          <span className="chapter-count" data-chapter>01 / 04</span>
           <div className="progress-track" aria-hidden="true"><span /></div>
         </footer>
         </div>
         <ProjectOverview />
       </div>
+      <ContactSection />
       <div className="motion-control">
         <button type="button" aria-pressed={motionOff} onClick={() => setMotionOff(!motionOff)}>
           <span className={status === "ready" ? "motion-indicator is-on" : "motion-indicator"} />

@@ -122,7 +122,8 @@ h1 em, h2 em { font-weight: 400; }
 .skip-link:focus { transform: translateY(0); }
 .sr-only { position: absolute; width: 1px; height: 1px; margin: -1px; overflow: hidden; clip: rect(0,0,0,0); white-space: nowrap; }
 .story-scenes { position: relative; }
-.is-enhanced { padding-bottom: var(--work-overflow, 0px); background: #101c20; }
+.is-enhanced { background: #101c20; }
+.is-enhanced .contact-section { margin-top: var(--work-overflow, 0px); }
 .is-enhanced .stage { height: 100svh; overflow: visible; }
 .is-enhanced .story-scenes { position: absolute; inset: 0; overflow: hidden; }
 .is-enhanced .work-section { position: absolute; top: 0; left: 0; width: 100%; z-index: 5; opacity: 0; background: transparent; }
@@ -242,4 +243,58 @@ h1 em, h2 em { font-weight: 400; }
   .site-header nav { gap: 9px; }
   .site-header nav a { font-size: 9px; gap: 3px; }
   .wordmark { gap: 5px; font-size: 10px; }
+}
+
+/* The final chapter opens onto paper, carrying the maker into the outro. */
+.contact-section { position: relative; isolation: isolate; overflow: clip; min-height: 100svh; padding: 135px 6% 38px; background: var(--cream); color: var(--ink); --contact-muted: #52605d; --contact-rule: #0a111833; }
+.contact-topline { display: flex; align-items: baseline; justify-content: space-between; gap: 24px; padding-bottom: 22px; border-bottom: 1px solid var(--contact-rule); }
+.contact-topline .eyebrow { margin: 0; }
+.contact-edition { font-family: var(--font-editorial), Georgia, serif; font-size: 21px; font-style: italic; }
+.contact-composition { position: relative; display: grid; grid-template-columns: 1.2fr 1fr; align-items: center; min-height: 620px; padding: 64px 0; }
+.contact-copy { position: relative; z-index: 2; }
+.contact-copy h2 { font-size: clamp(76px, 8.3vw, 140px); line-height: .92; margin: 0 0 30px -4px; }
+.contact-copy h2 em { display: block; }
+.contact-description { color: var(--contact-muted); font-size: 14px; line-height: 1.85; margin: 0 0 36px; max-width: 420px; }
+.contact-email { display: flex; align-items: center; justify-content: space-between; gap: 24px; width: min(100%, 420px); padding: 20px 0; border-top: 1px solid var(--contact-rule); border-bottom: 1px solid var(--contact-rule); font-family: var(--font-editorial), Georgia, serif; font-size: 40px; line-height: 1; }
+.contact-address { display: block; margin-top: 12px; font-family: var(--font-body), Arial, sans-serif; color: var(--contact-muted); font-size: 12px; line-height: 1.5; overflow-wrap: anywhere; }
+.contact-arrow { display: grid; place-items: center; width: 56px; height: 56px; flex-shrink: 0; border: 1px solid var(--contact-rule); border-radius: 50%; font-family: var(--font-body), Arial, sans-serif; font-size: 26px; transition: transform .25s, background .25s, color .25s; }
+.contact-email[href]:hover .contact-arrow { transform: rotate(45deg); background: var(--ink); color: var(--cream); }
+.contact-socials { display: flex; flex-wrap: wrap; gap: 24px; margin-top: 18px; }
+.contact-socials a { display: inline-flex; align-items: center; gap: 12px; min-height: 44px; font-size: 12px; }
+.contact-socials a:hover { text-decoration: underline; text-underline-offset: 5px; }
+.contact-art { position: relative; align-self: stretch; min-height: 500px; }
+.contact-orbit { position: absolute; width: 100%; aspect-ratio: 1; border: 1px solid var(--contact-rule); border-radius: 50%; top: 10%; }
+.contact-orbit::before { content: ""; position: absolute; inset: 12%; border: 1px solid var(--contact-rule); border-radius: 50%; }
+.contact-maker { position: absolute; width: 90%; height: 105%; object-fit: contain; object-position: bottom; bottom: 0; right: -4%; filter: drop-shadow(0 20px 20px #0a111824); }
+.contact-paper { position: absolute; width: 48%; height: auto; top: -8%; left: -5%; transform: rotate(-14deg); filter: drop-shadow(0 14px 18px #0a11181c); }
+.contact-art-caption { position: absolute; bottom: -26px; right: 0; font-size: 9px; letter-spacing: 1.6px; color: var(--contact-muted); }
+.contact-footer { display: flex; justify-content: space-between; align-items: center; gap: 24px; border-top: 1px solid var(--contact-rule); padding-top: 24px; }
+.contact-footer > span:first-child { font-family: var(--font-editorial), Georgia, serif; font-size: 24px; font-style: italic; }
+.contact-section a:focus-visible, .is-contact .site-header a:focus-visible { outline-color: var(--ink); }
+.is-contact .site-header { color: var(--ink); background: var(--cream); }
+.is-contact .site-header nav a:hover { color: var(--ink); }
+@media (max-width: 900px) {
+  .contact-composition { min-height: 560px; }
+  .contact-copy h2 { font-size: 80px; }
+  .contact-art { min-height: 400px; }
+}
+@media (max-width: 700px) {
+  .contact-section { padding: 130px 6% 65px; }
+  .contact-edition { display: none; }
+  .contact-composition { grid-template-columns: 1fr; padding: 40px 0 50px; gap: 24px; }
+  .contact-copy h2 { font-size: clamp(66px, 15vw, 100px); }
+  .contact-description { font-size: 14px; margin-bottom: 24px; }
+  .contact-description br { display: none; }
+  .contact-art { min-height: 360px; width: 85%; justify-self: center; }
+  .contact-maker { width: 85%; height: 100%; }
+  .contact-paper { top: 2%; left: 0; width: 44%; }
+  .contact-orbit { width: 90%; top: 4%; }
+  .contact-art-caption { font-size: 8px; }
+  .contact-footer { flex-wrap: wrap; gap: 12px; }
+  .contact-footer > span:first-child { width: 100%; }
+}
+@media (max-width: 600px) {
+  .site-header { flex-wrap: wrap; row-gap: 8px; }
+  .site-header nav { width: 100%; justify-content: space-between; gap: 8px; }
+  .site-header nav a { font-size: 11px; }
 }

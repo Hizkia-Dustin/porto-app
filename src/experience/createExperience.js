@@ -36,6 +36,7 @@ export function createExperience({ root, stage, mount, onReady, onFailure }) {
   let frame = 0, dirty = true, progress = 0, pendingFocus = null;
   const textures = [], materials = [], geometries = [], cleanups = [];
   const workCopy = root.querySelector('[data-copy="work"]');
+  const contactSection = root.querySelector("#contact");
   const sceneFooter = root.querySelector(".scene-footer");
 
   function dispose() {
@@ -51,7 +52,7 @@ export function createExperience({ root, stage, mount, onReady, onFailure }) {
     geometries.forEach((g) => g.dispose());
     renderer?.dispose();
     renderer?.domElement.remove();
-    root.classList.remove("is-enhanced");
+    root.classList.remove("is-enhanced", "is-contact");
     root.querySelectorAll("[data-copy]").forEach((el) => {
       el.removeAttribute("style");
       el.removeAttribute("inert");
@@ -346,7 +347,7 @@ export function createExperience({ root, stage, mount, onReady, onFailure }) {
         stage.style.setProperty("--progress", p);
         stage.style.setProperty("--work-reveal", journey.workText);
         contact.style.opacity = state.contact;
-        chapter.textContent = journey.work > .7 ? "03 / 03" : journey.intro < .78 ? "01 / 03" : "02 / 03";
+        chapter.textContent = journey.work > .7 ? "03 / 04" : journey.intro < .78 ? "01 / 04" : "02 / 04";
         caption.textContent = journey.work > .24 ? "Ideas taking a new form" : journey.intro < .28 ? "Scroll to bring worlds together" : journey.intro < .42 ? "A spark of possibility" : journey.intro < .8 ? "An idea taking shape" : "Scroll to explore the work";
         if (pendingFocus && Math.abs(p - pendingFocus.progress) < .001) {
           pendingFocus.element.focus({ preventScroll: true });
@@ -423,13 +424,36 @@ export function createExperience({ root, stage, mount, onReady, onFailure }) {
         trigger: root, pin: stage, start: "top top",
         end: () => `+=${Math.round(window.innerHeight * (window.innerWidth < 768 ? 2.5 : 3.6) / FIRST_TRANSITION_END)}`,
         scrub: true, invalidateOnRefresh: true, anticipatePin: 1,
-        onRefresh: resize,
+        onRefresh: (self) => { resize(); update(self.progress); },
       } });
       timeline.to(playhead, { progress: 1, duration: 1, ease: "none", onUpdate: () => update(playhead.progress) });
       trigger = timeline.scrollTrigger;
+      // Keep the Work chapter's full natural height before revealing the outro.
+      const outro = gsap.timeline({ scrollTrigger: {
+        trigger: contactSection, start: "top bottom", end: "top top",
+        scrub: true, invalidateOnRefresh: true,
+      } });
+      outro.fromTo(contactSection.querySelector("[data-contact-reveal]"),
+        { y: 70, opacity: .2 }, { y: 0, opacity: 1, ease: "none" }, 0);
+      outro.fromTo(contactSection.querySelector(".contact-maker"),
+        { y: 100, rotation: -5 }, { y: 0, rotation: 0, ease: "none" }, 0);
+      outro.fromTo(contactSection.querySelector(".contact-paper"),
+        { y: -80, rotation: -30 }, { y: 0, rotation: -14, ease: "none" }, 0);
+      const contactHeader = ScrollTrigger.create({
+        trigger: contactSection, start: "top 100px", end: "bottom top",
+        toggleClass: { targets: root, className: "is-contact" },
+      });
+      cleanups.push(() => { outro.revert(); contactHeader.kill(); });
       resizeObserver = new ResizeObserver(resize);
       resizeObserver.observe(stage);
       resizeObserver.observe(workCopy);
+      let refreshFrame;
+      const workObserver = new ResizeObserver(() => {
+        cancelAnimationFrame(refreshFrame);
+        refreshFrame = requestAnimationFrame(() => ScrollTrigger.refresh());
+      });
+      workObserver.observe(workCopy);
+      cleanups.push(() => { workObserver.disconnect(); cancelAnimationFrame(refreshFrame); });
       const mouse = { x: 0, y: 0, targetX: 0, targetY: 0 };
       const onPointerMove = (e) => {
         if (mobile || sampleJourney(progress).intro > 0.45) return;
@@ -462,9 +486,16 @@ export function createExperience({ root, stage, mount, onReady, onFailure }) {
       }
       render();
       const onAnchor = (event) => {
-        const link = event.target.closest('a[href="#intro"], a[href="#about"], a[href="#work"]');
+        const link = event.target.closest('a[href="#intro"], a[href="#about"], a[href="#work"], a[href="#contact"]');
         if (!link || event.metaKey || event.ctrlKey || event.shiftKey || event.altKey) return;
         event.preventDefault();
+        if (link.hash === "#contact") {
+          pendingFocus = null;
+          window.scrollTo({ top: window.scrollY + contactSection.getBoundingClientRect().top, behavior: event.isTrusted ? "smooth" : "instant" });
+          root.querySelector("#contact-title").focus({ preventScroll: true });
+          history.replaceState(null, "", link.hash);
+          return;
+        }
         const about = link.hash === "#about";
         const work = link.hash === "#work";
         const destination = work ? 1 : about ? ABOUT_PROGRESS : 0;
@@ -482,6 +513,9 @@ export function createExperience({ root, stage, mount, onReady, onFailure }) {
         ScrollTrigger.update();
       } else if (window.location.hash === "#work") {
         window.scrollTo({ top: trigger.end, behavior: "instant" });
+        ScrollTrigger.update();
+      } else if (window.location.hash === "#contact") {
+        window.scrollTo({ top: window.scrollY + contactSection.getBoundingClientRect().top, behavior: "instant" });
         ScrollTrigger.update();
       }
       onReady();

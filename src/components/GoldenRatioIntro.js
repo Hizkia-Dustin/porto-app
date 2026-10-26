@@ -12,9 +12,10 @@ export default function GoldenRatioIntro({ children }) {
   useEffect(() => {
     if (dismissed) {
       // Re-align the chapter after the opening releases its scroll lock.
-      if (window.location.hash !== "#work") return;
+      const hash = window.location.hash;
+      if (!["#about", "#work", "#contact"].includes(hash)) return;
       const frame = requestAnimationFrame(() => {
-        content.current?.querySelector('nav a[href="#work"]')?.click();
+        content.current?.querySelector(`nav a[href="${hash}"]`)?.click();
       });
       return () => cancelAnimationFrame(frame);
     }

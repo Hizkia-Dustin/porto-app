@@ -80,8 +80,8 @@ export default function ProjectOverview() {
 
       <footer className="work-footer">
         <span>Curiosity, put into practice.</span>
-        <a href="#intro" className="text-link">Back to the beginning <span aria-hidden="true">↗</span></a>
-        <span className="chapter-count">03 / 03</span>
+        <a href="#contact" className="text-link">Have something in mind? Let’s talk <span aria-hidden="true">↗</span></a>
+        <span className="chapter-count">03 / 04</span>
       </footer>
     </section>
   );
