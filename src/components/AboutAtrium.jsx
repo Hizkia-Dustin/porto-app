@@ -3,6 +3,7 @@
 import { useEffect, useRef, useState } from "react";
 import * as THREE from "three";
 import { ArrowRight } from "lucide-react";
+import { useLenis } from "lenis/react";
 import ShuffleText from "./ShuffleText";
 import { createAboutJourney, scrollToTravel } from "../lib/aboutJourney.mjs";
 import { floorHeight as floorY, groundedBoxGeometry } from "../lib/aboutGeometry.mjs";
@@ -54,12 +55,20 @@ export default function AboutAtrium() {
   const designRef = useRef(null);
   const galleryRefs = useRef([]);
   const [activeStop, setActiveStop] = useState(0);
+  const lenis = useLenis();
 
   function navigateRoom(destination) {
     const section = sectionRef.current;
     const top = window.scrollY + section.getBoundingClientRect().top;
-    window.scrollTo({ top: top + (section.offsetHeight - stageRef.current.clientHeight) * destination,
-      behavior: window.matchMedia("(prefers-reduced-motion: reduce)").matches ? "instant" : "smooth" });
+    const targetY = top + (section.offsetHeight - stageRef.current.clientHeight) * destination;
+    if (lenis) {
+      lenis.scrollTo(targetY, { duration: 1.2 });
+    } else {
+      window.scrollTo({
+        top: targetY,
+        behavior: window.matchMedia("(prefers-reduced-motion: reduce)").matches ? "instant" : "smooth",
+      });
+    }
   }
 
   useEffect(() => {
@@ -338,7 +347,7 @@ export default function AboutAtrium() {
         if (disposed || !visible || document.hidden) return;
         const dt = Math.min((time - lastTime) / 1000 || 0.016, 0.05);
         lastTime = time;
-        const ease = 1 - Math.exp(-dt * 6);
+        const ease = 1 - Math.exp(-dt * 10);
         const scroll = THREE.MathUtils.clamp(-section.getBoundingClientRect().top / Math.max(1, section.offsetHeight - height), 0, 1);
         const destination = scrollToTravel(scroll, motion.matches);
         travel = motion.matches ? destination : THREE.MathUtils.lerp(travel, destination, ease);
@@ -415,6 +424,7 @@ export default function AboutAtrium() {
       section.addEventListener("click", triggerShuffle);
       section.addEventListener("pointerenter", triggerShuffle);
       document.addEventListener("visibilitychange", wake);
+      window.addEventListener("scroll", wake, { passive: true });
       resize();
       camera.updateMatrixWorld();
       projectPanel(copy, panelCorners, camera, width, height);
@@ -428,6 +438,7 @@ export default function AboutAtrium() {
         section.removeEventListener("click", triggerShuffle);
         section.removeEventListener("pointerenter", triggerShuffle);
         document.removeEventListener("visibilitychange", wake);
+        window.removeEventListener("scroll", wake);
         scene.traverse(object => object.geometry?.dispose());
         textures.forEach(texture => texture.dispose());
         materials.forEach(value => value.dispose());
