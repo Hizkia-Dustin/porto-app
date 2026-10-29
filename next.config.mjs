@@ -10,6 +10,8 @@ const nextConfig = {
   turbopack: {
     rules: {
       "*.css": {
+        // Preserve native CSS Module exports; this loader is for global Tailwind CSS.
+        condition: { not: { path: /\.module\.css$/ } },
         loaders: ["@tailwindcss/turbopack"],
         as: "*.css",
       },

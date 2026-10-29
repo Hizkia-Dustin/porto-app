@@ -13,7 +13,7 @@ test("opening and closing scenes are readable with no residual particles", () =>
   assert.equal(end.reconstruct, 1);
   assert.equal(end.particles, 0);
 });
-test("both characters meet and hold before any outline or dissolve", () => {
+test("opening artwork holds before any outline or dissolve", () => {
   assert.equal(sampleProgress(0).meet, 0);
   assert.ok(sampleProgress(.15).meet > 0 && sampleProgress(.15).meet < 1);
   assert.equal(sampleProgress(.28).meet, 1);

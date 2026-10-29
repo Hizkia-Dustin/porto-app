@@ -1,6 +1,5 @@
-import HeroExperience from "@/components/HeroExperience";
-import GoldenRatioIntro from "@/components/GoldenRatioIntro";
+import Portfolio from "@/components/Portfolio";
 
 export default function Home() {
-  return <GoldenRatioIntro><HeroExperience /></GoldenRatioIntro>;
+  return <Portfolio />;
 }

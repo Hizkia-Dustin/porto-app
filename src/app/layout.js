@@ -1,17 +1,28 @@
-import { Cormorant_Garamond, Inter } from "next/font/google";
+import { IBM_Plex_Mono } from "next/font/google";
+import localFont from "next/font/local";
 import "./globals.css";
 
-const inter = Inter({ variable: "--font-body", subsets: ["latin"], display: "swap" });
-const cormorant = Cormorant_Garamond({
-  variable: "--font-editorial", subsets: ["latin"],
-  weight: ["400", "500"], style: ["normal", "italic"], display: "swap",
+const mono = IBM_Plex_Mono({
+  variable: "--font-mono",
+  subsets: ["latin"],
+  weight: ["400", "500"],
+  display: "swap",
+});
+const bagke = localFont({
+  src: "../../public/fonts/BagkeMere-Regular.otf",
+  variable: "--font-bagke",
+  display: "swap",
 });
 
 export const metadata = {
-  title: "Ideas in Motion — A Personal Edition",
-  description: "A dialogue between art and technology. Step inside a Renaissance-inspired creative portfolio.",
+  title: "HZ — UI/UX Enthusiast",
+  description: "Hizkia Dustin. UI/UX enthusiast. Learn from everywhere.",
 };
 
 export default function RootLayout({ children }) {
-  return <html lang="en" className={`${inter.variable} ${cormorant.variable}`}><body>{children}</body></html>;
+  return (
+    <html lang="id" className={`${mono.variable} ${bagke.variable}`}>
+      <body>{children}</body>
+    </html>
+  );
 }

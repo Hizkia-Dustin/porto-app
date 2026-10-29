@@ -1,0 +1,231 @@
+.page {
+  min-width: 1000px;
+  overflow: clip;
+  background: #e20b3a;
+  color: #15100e;
+  font-family: var(--font-mono), monospace;
+}
+.hero {
+  --hero-scale: 1;
+  position: relative;
+  width: 100%;
+  aspect-ratio: 1440 / 742;
+  overflow: hidden;
+  background: #e20b3a;
+  color: #15100e;
+}
+.artboard {
+  position: absolute;
+  inset: 0 auto auto 0;
+  width: 1440px;
+  height: 742px;
+  transform: scale(var(--hero-scale));
+  transform-origin: top left;
+}
+.header {
+  position: relative;
+  height: 100px;
+  display: grid;
+  grid-template-columns: 105px 703px 46px 586px;
+  border-bottom: 1px solid #15100e;
+}
+.headerLines {
+  position: absolute;
+  top: 0;
+  left: 0;
+  pointer-events: none;
+}
+.logo {
+  position: relative;
+  align-self: start;
+  margin: 12px 0 0 12px;
+  font-family: var(--font-bagke), sans-serif;
+  font-size: 65.986px;
+  line-height: normal;
+  color: #000;
+}
+.intro { position: relative; color: #000; font-size: 32.084px; line-height: normal; white-space: nowrap; }
+.pillCell {
+  --pill-roll: 64px;
+  position: relative;
+  display: flex;
+  align-items: center;
+  overflow: hidden;
+  isolation: isolate;
+  border-radius: 0;
+  outline: none;
+  cursor: default;
+}
+.introTop,
+.introBottom {
+  position: absolute;
+  right: 0;
+  left: 0;
+  height: 50px;
+  padding: 0 19px;
+}
+.introTop { top: 0; justify-content: flex-start; }
+.introBottom { top: 50px; justify-content: flex-end; }
+.pillFace {
+  position: relative;
+  z-index: 2;
+  display: inline-flex;
+  align-items: center;
+  justify-content: inherit;
+  transition: transform 360ms cubic-bezier(0.22, 1, 0.36, 1);
+}
+.pillFaceAlt {
+  position: absolute;
+  inset: 0;
+  z-index: 2;
+  display: flex;
+  align-items: center;
+  justify-content: inherit;
+  padding: inherit;
+  color: #fff;
+  transform: translateY(var(--pill-roll));
+  transition: transform 360ms cubic-bezier(0.22, 1, 0.36, 1);
+}
+.pillFill {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  border-radius: 0;
+  background: #15100e;
+  pointer-events: none;
+  transform: translateY(100%);
+  transition: transform 360ms cubic-bezier(0.4, 0, 0.2, 1);
+}
+.pillCell:hover .pillFace,
+.pillCell:focus-visible .pillFace { transform: translateY(calc(var(--pill-roll) * -1)); transition-duration: 500ms; }
+.pillCell:hover .pillFaceAlt,
+.pillCell:focus-visible .pillFaceAlt { transform: translateY(0); transition-duration: 500ms; }
+.pillCell:hover .pillFill,
+.pillCell:focus-visible .pillFill { transform: translateY(0); transition: transform 550ms cubic-bezier(0.22, 1, 0.36, 1); }
+.pillCell:focus-visible { box-shadow: none; }
+.socials { display: grid; grid-template-rows: 50px 50px; }
+.socials a,
+.socials button {
+  --pill-roll: 58px;
+  align-self: stretch;
+  justify-self: stretch;
+  width: 46px;
+  height: 50px;
+  padding: 0;
+  cursor: pointer;
+}
+.socials img { display: block; }
+.pillIcon { width: 100%; height: 100%; justify-content: center; }
+.pillFaceAlt.pillIcon img { filter: invert(1); }
+.nav { display: flex; align-items: flex-start; gap: 137px; padding: 40px 0 0 89px; white-space: nowrap; font-size: 15.806px; line-height: normal; }
+.nav button { position: relative; }
+.nav button::after { position: absolute; left: 0; right: 0; bottom: -5px; height: 1px; background: currentColor; content: ""; transform: scaleX(0); transform-origin: left; transition: transform 160ms ease; }
+.nav button:hover::after, .nav button:focus-visible::after { transform: scaleX(1); }
+.hero button { border: 0; border-radius: 0; background: none; color: inherit; font: inherit; cursor: pointer; }
+.nav a { position: relative; }
+.nav a::after { position: absolute; left: 0; right: 0; bottom: -5px; height: 1px; background: currentColor; content: ""; transform: scaleX(0); transform-origin: left; transition: transform 160ms ease; }
+.nav a:hover::after, .nav a:focus-visible::after { transform: scaleX(1); }
+.nav button { padding: 0; }
+.emptyStage {
+  position: relative;
+  height: 579.5px;
+  overflow: hidden;
+  border-bottom: 2px solid #15100e;
+  background: #e20b3a;
+}
+.topography {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  mix-blend-mode: multiply;
+}
+.topographyShade {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background:
+    linear-gradient(180deg, #e20b3a 0%, transparent 13%, transparent 82%, #e20b3a 100%),
+    linear-gradient(90deg, #e20b3a33 0%, transparent 16%, transparent 84%, #e20b3a33 100%);
+}
+.marquee { position: absolute; top: 693px; left: 0; width: 1440px; height: 49px; overflow: hidden; }
+.track { display: flex; width: max-content; padding-left: 8px; animation: marquee 42s linear infinite; }
+.marqueeGroup { display: flex; align-items: center; flex: none; gap: 8px; padding-right: 8px; font-size: 38px; font-weight: 500; line-height: 49px; white-space: nowrap; }
+.marqueeGroup i { flex: 0 0 11.91px; width: 11.91px; height: 11.91px; border-radius: 5.955px; background: #15100e; transform: rotate(4deg); margin: 0 0.4px; }
+.marquee:hover .track, .marquee:focus .track { animation-play-state: paused; }
+@keyframes marquee { to { transform: translateX(-50%); } }
+.about {
+  position: relative;
+  width: 100%;
+  height: 1300svh;
+  background: #e20b3a;
+}
+.aboutStage {
+  position: sticky;
+  top: 0;
+  width: 100%;
+  height: 100svh;
+  container-type: inline-size;
+  overflow: hidden;
+  border-top: 1px solid #15100e;
+  background: #e20b3a;
+  isolation: isolate;
+}
+.aboutCanvas { position: absolute; inset: 0; width: 100%; height: 100%; }
+.aboutAccessibleTitle { position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); white-space: nowrap; }
+.aboutCopy {
+  position: absolute;
+  z-index: 2;
+  top: 0;
+  left: 0;
+  width: 500px;
+  height: 620px;
+  color: #101413;
+  transform-origin: 0 0;
+  will-change: transform;
+}
+.aboutIndex { width: 84%; padding: 12px 38px; background: #101413; color: #e20b3a; font-size: 13px; line-height: 16px; letter-spacing: 0.22em; }
+.aboutText { padding: 48px 38px 0; }
+.aboutLead { margin: 0; width: 126%; transform: scaleX(0.79); transform-origin: left top; font: 400 46px/1.12 "Times New Roman", serif; letter-spacing: -1.8px; }
+.aboutBody { margin: 44px 0 0; width: 126%; transform: scaleX(0.79); transform-origin: left top; font: 400 27px/1.2 "Times New Roman", serif; letter-spacing: -0.7px; }
+.about:not([data-webgl="ready"]) .aboutCopy { top: 20%; left: 20%; background: #e20b3a; }
+.stackTotem { position: absolute; z-index: 2; top: 0; left: 0; width: 500px; height: 620px; padding: 24px 30px; transform-origin: 0 0; background: #101413; color: #e20b3a; opacity: 0; will-change: transform; }
+.stackIndex { margin: 0 0 20px; font-size: 13px; letter-spacing: .2em; }
+.stackTotem h3 { margin: 0; font: 400 112px/.86 "AtriumDisplay", Impact, sans-serif; letter-spacing: -.03em; }
+.stackIntro { margin: 22px 0; font: 26px/1.12 "Times New Roman", serif; }
+.stackTotem ul { margin: 0; padding: 0; list-style: none; }
+.stackTotem li { border-top: 1px solid #e20b3a66; padding: 12px 0; }
+.stackTotem li span { display: block; margin-bottom: 5px; font-size: 10px; letter-spacing: .18em; }
+.stackTotem li strong { font-size: 21px; font-weight: 400; }
+.stackFooter { margin: 16px 0 0; font-size: 10px; letter-spacing: .13em; }
+.roomNavigation { position: absolute; z-index: 4; bottom: 26px; left: 5%; width: 90%; display: flex; align-items: center; gap: 30px; padding: 13px 18px; color: #e20b3a; background: #101413; font-size: 12px; letter-spacing: .13em; }
+.roomNavigation button { display: flex; align-items: center; gap: 18px; border: 0; padding: 4px; background: transparent; color: inherit; cursor: pointer; font-size: inherit; letter-spacing: inherit; }
+.roomProgress { flex: 1; height: 1px; background: #e20b3a44; }
+.roomProgress i { display: block; width: 100%; height: 100%; transform: scaleX(var(--room-progress, 0)); transform-origin: left; background: #e20b3a; }
+.designTotem h3 { font-size: 100px; }
+.designTotem li strong { font-size: 20px; }
+.roomBack svg { transform: rotate(180deg); }
+.about[data-webgl="unavailable"] { height: auto; }
+.about[data-webgl="unavailable"] .aboutStage { position: relative; height: auto; min-height: 100svh; display: flex; flex-wrap: wrap; justify-content: center; gap: 40px; padding: 60px 20px; }
+.about[data-webgl="unavailable"] .aboutCopy, .about[data-webgl="unavailable"] .stackTotem, .about[data-webgl="unavailable"] .museumPanel { position: relative; top: auto; left: auto; opacity: 1; visibility: visible; }
+.about[data-webgl="unavailable"] .roomNavigation { display: none; }
+.dialog { width: 520px; max-width: 80vw; padding: 28px; border: 1px solid #15100e; background: #e20b3a; color: #15100e; font: 16px/1.6 var(--font-mono), monospace; }
+.dialog::backdrop { background: #15100e66; }
+.dialogHeading { display: flex; align-items: center; justify-content: space-between; gap: 30px; }
+.dialogHeading h1 { margin: 0; font: 500 28px/1.2 var(--font-mono), monospace; text-transform: uppercase; }
+.dialogHeading button { padding: 0 8px; font-size: 30px; }
+.dialog p { margin: 24px 0 0; }
+@media (prefers-reduced-motion: reduce) {
+  .track { animation: none; }
+  .pillFace, .pillFaceAlt, .pillFill, .nav button::after { transition: none; }
+  .topography { pointer-events: none; }
+}
+
+.museumPanel { position: absolute; z-index: 2; top: 0; left: 0; width: 850px; height: 560px; padding: 40px 44px; transform-origin: 0 0; background: #101413; color: #e20b3a; opacity: 0; will-change: transform; }
+.museumIndex { margin: 0 0 24px; font-size: 20px; letter-spacing: .15em; }
+.museumPanel h3 { margin: 0 0 26px; font: 400 76px/1 "AtriumDisplay", Impact, sans-serif; }
+.museumPanel ul { margin: 0; padding: 0; list-style: none; }
+.museumPanel li { padding: 20px 0; border-top: 1px solid #e20b3a66; }
+.museumPanel li span { display: block; margin-bottom: 8px; font-size: 25px; }
+.museumPanel li strong, .museumPanel li a { display: flex; align-items: center; gap: 12px; font-size: 29px; font-weight: 400; color: inherit; }
+.museumNote { margin: 16px 0 0; font-size: 18px; opacity: .7; }
