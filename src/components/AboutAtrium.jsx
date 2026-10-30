@@ -2,7 +2,7 @@
 
 import { useEffect, useRef, useState } from "react";
 import * as THREE from "three";
-import { ArrowRight } from "lucide-react";
+import { ArrowRight, ZoomOut } from "lucide-react";
 import { useLenis } from "lenis/react";
 import ShuffleText from "./ShuffleText";
 import { createAboutJourney, scrollToTravel } from "../lib/aboutJourney.mjs";
@@ -55,7 +55,20 @@ export default function AboutAtrium() {
   const designRef = useRef(null);
   const galleryRefs = useRef([]);
   const [activeStop, setActiveStop] = useState(0);
+  const [zoomedLeaf, setZoomedLeaf] = useState(null);
+  const zoomedLeafRef = useRef(null);
+  zoomedLeafRef.current = zoomedLeaf;
+  const wakeRef = useRef(null);
   const lenis = useLenis();
+
+  function handleZoomLeaf(target) {
+    setZoomedLeaf(target);
+    zoomedLeafRef.current = target;
+    if (target) {
+      navigateRoom((target.exhibitIndex + 3) / 6);
+    }
+    if (wakeRef.current) wakeRef.current();
+  }
 
   function navigateRoom(destination) {
     const section = sectionRef.current;
@@ -265,26 +278,266 @@ export default function AboutAtrium() {
       const codeTotem = createTotem(9, -16, Math.PI / 12);
       const designTotem = createTotem(17, -25, Math.PI / 24);
       const stackCorners = codeTotem.corners;
-      const gallery = museumExhibits.map(({ x, z, rotation, title, eyebrow }) => {
-        const partition = groundedBlock(6.4, 4.8, 0.9, x, z, rotation, [sideRed, sideRed, red, red, red, sideRed]);
-        const poster = document.createElement("canvas");
-        poster.width = 850; poster.height = 560;
-        const ctx = poster.getContext("2d");
-        ctx.fillStyle = INK; ctx.fillRect(0, 0, 850, 560);
-        ctx.fillStyle = RED; ctx.font = '26px monospace'; ctx.fillText(eyebrow, 44, 66);
-        ctx.font = '76px "AtriumDisplay", sans-serif'; ctx.fillText(title, 44, 165, 760);
-        const texture = new THREE.CanvasTexture(poster);
-        texture.colorSpace = THREE.SRGBColorSpace;
-        textures.push(texture);
-        const center = floorY(-z) + 2.5;
-        const artwork = new THREE.Mesh(new THREE.PlaneGeometry(5.5, 3.7), material(RED, texture));
-        artwork.position.set(0, center, 0.456);
-        partition.add(artwork);
-        partition.updateMatrixWorld(true);
+      function drawPoster(ctx, exhibit, exhibitIndex, leafIndex) {
+        ctx.fillStyle = INK;
+        ctx.fillRect(0, 0, 400, 650);
+
+        ctx.fillStyle = RED;
+        ctx.font = '13px monospace';
+        ctx.fillText(`${exhibit.eyebrow} / 0${leafIndex + 1}`, 28, 44);
+
+        ctx.strokeStyle = "rgba(226, 11, 58, 0.35)";
+        ctx.lineWidth = 1;
+        ctx.beginPath();
+        ctx.moveTo(28, 56);
+        ctx.lineTo(372, 56);
+        ctx.stroke();
+
+        function wrap(text, x, startY, maxWidth, lineHeight, maxLines = 5) {
+          if (!text) return startY;
+          const words = text.split(" ");
+          let line = "";
+          let y = startY;
+          let count = 0;
+          for (let n = 0; n < words.length; n++) {
+            const test = line + words[n] + " ";
+            const width = ctx.measureText(test).width;
+            if (width > maxWidth && n > 0) {
+              ctx.fillText(line.trim(), x, y);
+              line = words[n] + " ";
+              y += lineHeight;
+              count++;
+              if (count >= maxLines - 1 && n < words.length - 1) {
+                let rest = line + words.slice(n + 1).join(" ");
+                while (ctx.measureText(rest + "…").width > maxWidth && rest.length > 0) {
+                  rest = rest.slice(0, -1).trim();
+                }
+                ctx.fillText(rest + "…", x, y);
+                return y;
+              }
+            } else {
+              line = test;
+            }
+          }
+          ctx.fillText(line.trim(), x, y);
+          return y;
+        }
+
+        if (leafIndex === 0) {
+          ctx.fillStyle = RED;
+          ctx.font = '130px "AtriumDisplay", sans-serif';
+          ctx.fillText(String(exhibitIndex + 5).padStart(2, "0"), 28, 175);
+
+          ctx.font = '44px "AtriumDisplay", sans-serif';
+          ctx.fillText(exhibit.title, 28, 235, 344);
+
+          ctx.font = '11px monospace';
+          ctx.fillStyle = "rgba(226, 11, 58, 0.85)";
+          ctx.fillText(exhibit.category || "PERSONAL ARCHIVE", 28, 265, 344);
+
+          ctx.strokeStyle = "rgba(226, 11, 58, 0.35)";
+          ctx.beginPath();
+          ctx.moveTo(28, 282);
+          ctx.lineTo(372, 282);
+          ctx.stroke();
+
+          ctx.fillStyle = RED;
+          ctx.font = '400 18px "Times New Roman", serif';
+          wrap(exhibit.overview, 28, 318, 344, 27, 7);
+        } else {
+          const row = exhibit.rows[leafIndex - 1];
+          if (row) {
+            ctx.fillStyle = RED;
+            ctx.font = '48px "AtriumDisplay", sans-serif';
+            ctx.fillText(`0${leafIndex}`, 28, 115);
+
+            ctx.font = '11px monospace';
+            ctx.fillStyle = "rgba(226, 11, 58, 0.85)";
+            ctx.fillText(row.tag || row.role.toUpperCase(), 28, 138, 344);
+
+            ctx.fillStyle = RED;
+            ctx.font = '400 34px "Times New Roman", serif';
+            const titleEndY = wrap(row.title, 28, 180, 344, 38, 2);
+
+            ctx.strokeStyle = "rgba(226, 11, 58, 0.35)";
+            ctx.beginPath();
+            ctx.moveTo(28, titleEndY + 14);
+            ctx.lineTo(372, titleEndY + 14);
+            ctx.stroke();
+
+            ctx.fillStyle = "rgba(226, 11, 58, 0.9)";
+            ctx.font = '500 13px monospace';
+            ctx.fillText(row.role, 28, titleEndY + 36, 344);
+
+            ctx.fillStyle = RED;
+            ctx.font = '400 17px "Times New Roman", serif';
+            wrap(row.description, 28, titleEndY + 66, 344, 23, 7);
+
+            if (row.href || row.handle) {
+              ctx.strokeStyle = RED;
+              ctx.strokeRect(28, 542, 344, 38);
+              ctx.font = '12px monospace';
+              ctx.fillText(`${row.handle || row.role} →`, 40, 566);
+            }
+          }
+        }
+
+        ctx.strokeStyle = "rgba(226, 11, 58, 0.35)";
+        ctx.beginPath();
+        ctx.moveTo(28, 600);
+        ctx.lineTo(372, 600);
+        ctx.stroke();
+
+        ctx.font = '11px monospace';
+        ctx.fillStyle = "rgba(226, 11, 58, 0.75)";
+        ctx.fillText("HZ / PERSONAL ARCHIVE", 28, 622);
+      }
+
+      function createSlopedBoxGeometry(width, depth, getBottomY, getTopY) {
+        const geom = new THREE.BoxGeometry(width, 1, depth);
+        const pos = geom.attributes.position;
+        for (let i = 0; i < pos.count; i++) {
+          const x = pos.getX(i);
+          const u = (x + width / 2) / width;
+          const bY = getBottomY(u);
+          const tY = getTopY(u);
+          pos.setY(i, pos.getY(i) < 0 ? bY : tY);
+        }
+        geom.computeVertexNormals();
+        return geom;
+      }
+
+      // Three portrait leaves share hinged edges, like a folding exhibition screen.
+      const gallery = museumExhibits.map(({ x, z, rotation, title, eyebrow }, exhibitIndex) => {
+        const CLEARANCE = 0.12;
+        const RAIL_HEIGHT = 0.08;
+        const TOTAL_HEIGHT = 4.85;
+        const folds = [-0.28, 0.28, -0.28];
+
+        // 1. Calculate 4 joint positions along the folding screen (Joint 0, 1, 2, 3)
+        let curLocalX = -3.17, curLocalZ = -0.3;
+        const localJoints = [{ x: curLocalX, z: curLocalZ }];
+        for (let f = 0; f < 3; f++) {
+          curLocalX += 2.2 * Math.cos(folds[f]);
+          curLocalZ -= 2.2 * Math.sin(folds[f]);
+          localJoints.push({ x: curLocalX, z: curLocalZ });
+        }
+
+        const worldJoints = localJoints.map(lj => {
+          const wx = x + lj.x * Math.cos(rotation) + lj.z * Math.sin(rotation);
+          const wz = z + lj.z * Math.cos(rotation) - lj.x * Math.sin(rotation);
+          return new THREE.Vector3(wx, floorY(-wz), wz);
+        });
+
+        // 2. Build 4 sturdy vertical frame stiles (posts) with architectural feet (kaki partisi)
+        for (let j = 0; j < 4; j++) {
+          const postAngle = j === 0
+            ? rotation + folds[0]
+            : j === 3
+            ? rotation + folds[2]
+            : rotation + (folds[j - 1] + folds[j]) / 2;
+          const baseY = worldJoints[j].y;
+
+          // Vertical stile pillar
+          const postGeom = new THREE.BoxGeometry(0.08, TOTAL_HEIGHT, 0.20);
+          const postMesh = new THREE.Mesh(postGeom, black);
+          postMesh.position.set(worldJoints[j].x, baseY + TOTAL_HEIGHT / 2, worldJoints[j].z);
+          postMesh.rotation.y = postAngle;
+          scene.add(postMesh);
+          postMesh.add(new THREE.LineSegments(new THREE.EdgesGeometry(postGeom), edge));
+
+          // Base foot stabilizer shoe (kaki partisi) resting directly on floor
+          const footGeom = new THREE.BoxGeometry(0.14, 0.04, 0.28);
+          const footMesh = new THREE.Mesh(footGeom, black);
+          footMesh.position.set(worldJoints[j].x, baseY + 0.02, worldJoints[j].z);
+          footMesh.rotation.y = postAngle;
+          scene.add(footMesh);
+          footMesh.add(new THREE.LineSegments(new THREE.EdgesGeometry(footGeom), edge));
+        }
+
+        // 3. Build 3 leaves (Red panel body, bottom rail, top rail, and artwork)
+        const leaves = folds.map((fold, leafIndex) => {
+          const angle = rotation + fold;
+          const j0 = worldJoints[leafIndex];
+          const j1 = worldJoints[leafIndex + 1];
+          const px = (j0.x + j1.x) / 2;
+          const pz = (j0.z + j1.z) / 2;
+          const floor0 = j0.y;
+          const floor1 = j1.y;
+          const base = (floor0 + floor1) / 2;
+
+          const group = new THREE.Group();
+          group.position.set(px, 0, pz);
+          group.rotation.y = angle;
+          scene.add(group);
+
+          // Interpolate floor height across the panel width
+          const lerpFloor = u => floor0 + (floor1 - floor0) * u;
+
+          // Red panel body (fits strictly inside frame, between bottom rail and top rail)
+          const panelGeom = createSlopedBoxGeometry(
+            2.2,
+            0.16,
+            u => lerpFloor(u) + CLEARANCE + RAIL_HEIGHT,
+            u => lerpFloor(u) + TOTAL_HEIGHT - RAIL_HEIGHT
+          );
+          group.add(new THREE.Mesh(panelGeom, [sideRed, sideRed, red, red, red, sideRed]));
+          group.add(new THREE.LineSegments(new THREE.EdgesGeometry(panelGeom), edge));
+
+          // Bottom rail (parallel to floor, exactly at CLEARANCE above floor)
+          const bottomRailGeom = createSlopedBoxGeometry(
+            2.2,
+            0.20,
+            u => lerpFloor(u) + CLEARANCE,
+            u => lerpFloor(u) + CLEARANCE + RAIL_HEIGHT
+          );
+          group.add(new THREE.Mesh(bottomRailGeom, black));
+          group.add(new THREE.LineSegments(new THREE.EdgesGeometry(bottomRailGeom), edge));
+
+          // Top rail (connects stiles at the top)
+          const topRailGeom = createSlopedBoxGeometry(
+            2.2,
+            0.20,
+            u => lerpFloor(u) + TOTAL_HEIGHT - RAIL_HEIGHT,
+            u => lerpFloor(u) + TOTAL_HEIGHT
+          );
+          group.add(new THREE.Mesh(topRailGeom, black));
+          group.add(new THREE.LineSegments(new THREE.EdgesGeometry(topRailGeom), edge));
+
+          // Poster artwork plane
+          const poster = document.createElement("canvas");
+          poster.width = 800; poster.height = 1300;
+          const ctx = poster.getContext("2d");
+          ctx.scale(2, 2);
+          drawPoster(ctx, museumExhibits[exhibitIndex], exhibitIndex, leafIndex);
+          const texture = new THREE.CanvasTexture(poster);
+          texture.colorSpace = THREE.SRGBColorSpace;
+          textures.push(texture);
+
+          const center = base + 2.85;
+          const artwork = new THREE.Mesh(new THREE.PlaneGeometry(1.86, 3.02), material(RED, texture));
+          artwork.position.set(0, center, 0.086);
+          group.add(artwork);
+          group.updateMatrixWorld(true);
+
+          let normal = new THREE.Vector3(Math.sin(angle), 0, Math.cos(angle)).normalize();
+          if (normal.z < 0) normal.negate();
+          const leafCenter = new THREE.Vector3(px, center, pz);
+          const ZOOM_DIST = 4.8;
+          const zoomCam = leafCenter.clone().add(normal.clone().multiplyScalar(ZOOM_DIST));
+          zoomCam.y = center;
+          const zoomLook = leafCenter.clone();
+
+          const corners = [[-0.93, center + 1.51, 0.092], [0.93, center + 1.51, 0.092], [0.93, center - 1.51, 0.092], [-0.93, center - 1.51, 0.092]]
+            .map(p => group.localToWorld(new THREE.Vector3(...p)));
+
+          return { corners, zoomCam, zoomLook };
+        });
+
         return {
-          target: new THREE.Vector3(x, center, z),
-          corners: [[-2.75, center + 1.85, 0.462], [2.75, center + 1.85, 0.462], [2.75, center - 1.85, 0.462], [-2.75, center - 1.85, 0.462]]
-            .map(p => partition.localToWorld(new THREE.Vector3(...p))),
+          target: new THREE.Vector3(x, floorY(-z) + 2.5, z),
+          leaves: leaves.map(l => l.corners),
+          zoomTargets: leaves.map(l => ({ cam: l.zoomCam, look: l.zoomLook })),
         };
       });
       const journey = createAboutJourney(codeTotem.target, designTotem.target, gallery.map(panel => panel.target));
@@ -341,41 +594,87 @@ export default function AboutAtrium() {
       let width = 1, height = 1, frame = 0, visible = false;
       let targetX = 0, targetY = 0, lastTime = 0, entered = false;
       let travel = 0;
+      let zoomAmount = 0;
+      let currentZoomTarget = null;
+      let lastExhibitIndex = 0;
+      let lastLeafIndex = 0;
       const motion = window.matchMedia("(prefers-reduced-motion: reduce)");
       const draw = time => {
         frame = 0;
         if (disposed || !visible || document.hidden) return;
-        const dt = Math.min((time - lastTime) / 1000 || 0.016, 0.05);
+        const dt = THREE.MathUtils.clamp((time - lastTime) / 1000 || 0.016, 0, 0.05);
         lastTime = time;
         const ease = 1 - Math.exp(-dt * 10);
         const scroll = THREE.MathUtils.clamp(-section.getBoundingClientRect().top / Math.max(1, section.offsetHeight - height), 0, 1);
         const destination = scrollToTravel(scroll, motion.matches);
-        travel = motion.matches ? destination : THREE.MathUtils.lerp(travel, destination, ease);
+        travel = THREE.MathUtils.clamp(motion.matches ? destination : THREE.MathUtils.lerp(travel, destination, ease), 0, legs.length);
         if (Math.abs(travel - destination) < 0.0001 && !motion.matches) travel = destination;
         const legIndex = Math.min(Math.floor(travel), legs.length - 1);
         const leg = legs[legIndex];
         const legTravel = THREE.MathUtils.clamp(travel - legIndex, 0, 1);
-        camera.position.copy(leg.camera.getPoint(legTravel));
-        camera.position.x += motion.matches ? 0 : targetX * 0.035 * Math.max(0, 1 - travel);
-        camera.position.y += motion.matches ? 0 : -targetY * 0.025 * Math.max(0, 1 - travel);
-        camera.lookAt(leg.look.getPoint(legTravel));
+
+        const activeZoom = zoomedLeafRef.current;
+        const targetZoomAmount = activeZoom ? 1 : 0;
+        zoomAmount = THREE.MathUtils.damp(zoomAmount, targetZoomAmount, 12, dt);
+        if (Math.abs(zoomAmount - targetZoomAmount) < 0.001) {
+          zoomAmount = targetZoomAmount;
+        }
+
+        if (activeZoom && gallery[activeZoom.exhibitIndex]?.zoomTargets[activeZoom.leafIndex]) {
+          currentZoomTarget = gallery[activeZoom.exhibitIndex].zoomTargets[activeZoom.leafIndex];
+          lastExhibitIndex = activeZoom.exhibitIndex;
+          lastLeafIndex = activeZoom.leafIndex;
+        }
+
+        const scrollCam = leg.camera.getPoint(legTravel);
+        const scrollLook = leg.look.getPoint(legTravel);
+
+        // Continuous mouse parallax blending (zero snapping on zoom in or out)
+        const parallaxWeight = (motion.matches ? 0 : Math.max(0, 1 - travel)) * (1 - zoomAmount);
+        scrollCam.x += targetX * 0.035 * parallaxWeight;
+        scrollCam.y += -targetY * 0.025 * parallaxWeight;
+
+        if (zoomAmount > 0.0001 && currentZoomTarget) {
+          camera.position.lerpVectors(scrollCam, currentZoomTarget.cam, zoomAmount);
+          const currentLook = scrollLook.clone().lerp(currentZoomTarget.look, zoomAmount);
+          camera.lookAt(currentLook);
+        } else {
+          camera.position.copy(scrollCam);
+          camera.lookAt(scrollLook);
+        }
         camera.updateMatrixWorld();
         letterControllers.forEach(ctrl => ctrl.update(time, dt));
         projectPanel(copy, panelCorners, camera, width, height);
-        copy.style.opacity = String(1 - THREE.MathUtils.smoothstep(travel, 0.08, 0.28));
-        copy.inert = travel > 0.28;
+        copy.style.opacity = String((1 - THREE.MathUtils.smoothstep(travel, 0.08, 0.28)) * (1 - zoomAmount));
+        copy.inert = travel > 0.28 || zoomAmount > 0.1;
         projectPanel(stack, stackCorners, camera, width, height);
-        stack.style.opacity = String(THREE.MathUtils.smoothstep(travel, 0.4, 0.65) * (1 - THREE.MathUtils.smoothstep(travel, 1.05, 1.35)));
-        stack.inert = travel < 0.4 || travel > 1.35;
+        stack.style.opacity = String(THREE.MathUtils.smoothstep(travel, 0.4, 0.65) * (1 - THREE.MathUtils.smoothstep(travel, 1.05, 1.35)) * (1 - zoomAmount));
+        stack.inert = travel < 0.4 || travel > 1.35 || zoomAmount > 0.1;
         projectPanel(design, designTotem.corners, camera, width, height);
-        design.style.opacity = String(THREE.MathUtils.smoothstep(travel, 1.35, 1.7) * (1 - THREE.MathUtils.smoothstep(travel, 2.05, 2.35)));
-        design.inert = travel < 1.35 || travel > 2.35;
+        design.style.opacity = String(THREE.MathUtils.smoothstep(travel, 1.35, 1.7) * (1 - THREE.MathUtils.smoothstep(travel, 2.05, 2.35)) * (1 - zoomAmount));
+        design.inert = travel < 1.35 || travel > 2.35 || zoomAmount > 0.1;
+
+        const targetExhibit = activeZoom ? activeZoom.exhibitIndex : lastExhibitIndex;
+        const targetLeaf = activeZoom ? activeZoom.leafIndex : lastLeafIndex;
+
         gallery.forEach((panel, i) => {
-          const element = galleryRefs.current[i];
-          projectPanel(element, panel.corners, camera, width, height, 850, 560);
           const distance = Math.abs(travel - (i + 3));
-          element.style.opacity = String(1 - THREE.MathUtils.smoothstep(distance, 0.25, 0.65));
-          element.inert = distance > 0.25;
+          const isExhibitTarget = (targetExhibit === i);
+          panel.leaves.forEach((corners, leafIndex) => {
+            const element = galleryRefs.current[i * 3 + leafIndex];
+            if (!element) return;
+            projectPanel(element, corners, camera, width, height, 400, 650);
+            const normalOpacity = 1 - THREE.MathUtils.smoothstep(distance, 0.25, 0.65);
+            const isThisLeafTarget = isExhibitTarget && targetLeaf === leafIndex;
+            let finalOpacity = normalOpacity;
+            if (isExhibitTarget && zoomAmount > 0) {
+              finalOpacity = THREE.MathUtils.lerp(normalOpacity, isThisLeafTarget ? 1 : 0.85, zoomAmount);
+            } else if (zoomAmount > 0) {
+              finalOpacity = THREE.MathUtils.lerp(normalOpacity, 0, zoomAmount);
+            }
+            element.style.opacity = String(finalOpacity);
+            element.inert = (!isExhibitTarget && distance > 0.25) || (activeZoom && !isThisLeafTarget);
+          });
         });
         setActiveStop(Math.round(travel));
         stage.style.setProperty("--room-progress", scroll);
@@ -384,6 +683,7 @@ export default function AboutAtrium() {
         frame = requestAnimationFrame(draw);
       };
       const wake = () => {
+        wakeRef.current = wake;
         if (!frame && visible && !document.hidden && !disposed) { lastTime = performance.now(); frame = requestAnimationFrame(draw); }
       };
       const resize = () => {
@@ -421,10 +721,27 @@ export default function AboutAtrium() {
       intersection.observe(section);
       section.addEventListener("pointermove", move, { passive: true });
       section.addEventListener("pointerleave", leave);
-      section.addEventListener("click", triggerShuffle);
+      section.addEventListener("click", (e) => {
+        if (!e.target.closest("." + styles.museumPanel) && !e.target.closest("." + styles.zoomControls) && zoomedLeafRef.current) {
+          handleZoomLeaf(null);
+        } else {
+          triggerShuffle();
+        }
+      });
       section.addEventListener("pointerenter", triggerShuffle);
       document.addEventListener("visibilitychange", wake);
       window.addEventListener("scroll", wake, { passive: true });
+      let wheelDelta = 0;
+      const onWheel = (e) => {
+        if (zoomedLeafRef.current) {
+          wheelDelta += Math.abs(e.deltaY);
+          if (wheelDelta > 80) {
+            wheelDelta = 0;
+            handleZoomLeaf(null);
+          }
+        }
+      };
+      window.addEventListener("wheel", onWheel, { passive: true });
       resize();
       camera.updateMatrixWorld();
       projectPanel(copy, panelCorners, camera, width, height);
@@ -439,6 +756,7 @@ export default function AboutAtrium() {
         section.removeEventListener("pointerenter", triggerShuffle);
         document.removeEventListener("visibilitychange", wake);
         window.removeEventListener("scroll", wake);
+        window.removeEventListener("wheel", onWheel);
         scene.traverse(object => object.geometry?.dispose());
         textures.forEach(texture => texture.dispose());
         materials.forEach(value => value.dispose());
@@ -447,7 +765,17 @@ export default function AboutAtrium() {
       };
     }
     init();
-    return () => { disposed = true; cleanup(); };
+    const onKey = (e) => {
+      if (e.key === "Escape" && zoomedLeafRef.current) {
+        handleZoomLeaf(null);
+      }
+    };
+    window.addEventListener("keydown", onKey);
+    return () => {
+      disposed = true;
+      window.removeEventListener("keydown", onKey);
+      cleanup();
+    };
   }, []);
 
   return (
@@ -490,20 +818,77 @@ export default function AboutAtrium() {
         </ul>
         <p className={styles.stackFooter}>DESIGN WITH INTENT — BUILD WITH CURIOSITY</p>
       </article>
-      {museumExhibits.map((exhibit, i) => (
-        <article className={styles.museumPanel} ref={element => { galleryRefs.current[i] = element; }} key={exhibit.title} aria-labelledby={`museum-title-${i}`}>
-          <p className={styles.museumIndex}>{exhibit.eyebrow}</p>
-          <h3 id={`museum-title-${i}`}>{exhibit.title}</h3>
-          <ul>{exhibit.rows.map(row => (
-            <li key={row.title}>
-              <span>{row.title}</span>
-              {row.href ? <a href={row.href} target="_blank" rel="noopener noreferrer">{row.role} <ArrowRight size={22} /></a> : <strong>{row.role}</strong>}
-            </li>
-          ))}</ul>
-          {exhibit.note && <p className={styles.museumNote}>{exhibit.note}</p>}
-        </article>
-      ))}
-      <nav className={styles.roomNavigation} aria-label="Explore the About room">
+      {museumExhibits.flatMap((exhibit, i) => [null, ...exhibit.rows].map((row, leafIndex) => {
+        const isThisZoomed = zoomedLeaf && zoomedLeaf.exhibitIndex === i && zoomedLeaf.leafIndex === leafIndex;
+        return (
+          <article
+            className={`${styles.museumPanel} ${isThisZoomed ? styles.museumPanelZoomed : ""} cursor-target`}
+            ref={element => { galleryRefs.current[i * 3 + leafIndex] = element; }}
+            key={`${exhibit.title}-${leafIndex}`}
+            aria-labelledby={`museum-title-${i}-${leafIndex}`}
+            onClick={(e) => {
+              if (e.target.closest("a")) return;
+              e.stopPropagation();
+              handleZoomLeaf(isThisZoomed ? null : { exhibitIndex: i, leafIndex });
+            }}
+            data-cursor-label={isThisZoomed ? "ZOOM OUT" : "BACA"}
+            role="button"
+            tabIndex={0}
+            onKeyDown={(e) => {
+              if (e.key === "Enter" || e.key === " ") {
+                e.preventDefault();
+                handleZoomLeaf(isThisZoomed ? null : { exhibitIndex: i, leafIndex });
+              }
+            }}
+          >
+            <p className={styles.museumIndex}>
+              {exhibit.eyebrow} / 0{leafIndex + 1}
+            </p>
+            {!row ? (
+              <>
+                <p className={styles.museumNumber}>{String(i + 5).padStart(2, "0")}</p>
+                <h3 id={`museum-title-${i}-${leafIndex}`}>{exhibit.title}</h3>
+                <p className={styles.museumCategory}>{exhibit.category}</p>
+                <p className={styles.museumDescription}>{exhibit.overview}</p>
+              </>
+            ) : (
+              <>
+                <span className={styles.museumSequence}>0{leafIndex}</span>
+                <p className={styles.museumRoleTag}>{row.tag || row.role}</p>
+                <h3 className={styles.museumRoleTitle} id={`museum-title-${i}-${leafIndex}`}>{row.title}</h3>
+                <p className={styles.museumRole}>{row.role}</p>
+                <p className={styles.museumDescription}>{row.description}</p>
+                {row.href && (
+                  <a className={`${styles.museumAction} cursor-target`} href={row.href} target="_blank" rel="noopener noreferrer" data-cursor-label="CONNECT">
+                    <span>{row.handle || row.role}</span>
+                    <ArrowRight size={16} aria-hidden="true" />
+                  </a>
+                )}
+              </>
+            )}
+            <p className={styles.museumCaption}>HZ / PERSONAL ARCHIVE</p>
+          </article>
+        );
+      }))}
+      {zoomedLeaf && (
+        <div className={styles.zoomControls} role="region" aria-label="Kontrol Zoom Partisi">
+          <button
+            type="button"
+            className={`${styles.zoomOutBtn} cursor-target`}
+            onClick={(e) => {
+              e.stopPropagation();
+              handleZoomLeaf(null);
+            }}
+            data-cursor-label="TUTUP"
+            aria-label="Zoom out kembali ke ruangan"
+          >
+            <ZoomOut size={15} aria-hidden="true" />
+            <span>ZOOM OUT</span>
+            <span className={styles.zoomHint}>ESC</span>
+          </button>
+        </div>
+      )}
+      <nav className={`${styles.roomNavigation} ${zoomedLeaf ? styles.roomNavHidden : ""}`} aria-label="Explore the About room">
         <span>{String(activeStop + 2).padStart(2, "0")} / {roomStops[activeStop]}</span>
         <span className={styles.roomProgress} aria-hidden="true"><i /></span>
         {activeStop > 0 && <button type="button" onClick={() => navigateRoom((activeStop - 1) / 6)} aria-label="Previous exhibit">&larr;</button>}

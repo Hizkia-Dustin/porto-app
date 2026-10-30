@@ -9,8 +9,10 @@ import AboutAtrium from "./AboutAtrium";
 import styles from "./Portfolio.module.css";
 
 const assets = "/assets/figma/red-hero";
-// Add the final profile URLs here when they are available.
-const socialLinks = { GitHub: null, LinkedIn: null };
+const socialLinks = {
+  GitHub: "https://github.com/Hizkia-Dustin",
+  LinkedIn: "https://linkedin.com/in/hizkia-dustin",
+};
 
 function RollingFace({ children, icon = false }) {
   return (
@@ -47,12 +49,12 @@ export default function Portfolio() {
     <main className={styles.page} id="home" aria-label="Hizkia Dustin portfolio">
       <TargetCursor
         targetSelector="a, button, .cursor-target, [tabindex='0']"
-        cursorColor="#15100e"
-        cursorColorOnTarget="#15100e"
-        blendMode="normal"
-        size={32}
-        cornerSize={8}
-        thickness={2}
+        cursorColor="#ffffff"
+        cursorColorOnTarget="#ffffff"
+        blendMode="difference"
+        size={34}
+        cornerSize={10}
+        thickness={2.5}
         padding={4}
         hoverDuration={0.2}
       />

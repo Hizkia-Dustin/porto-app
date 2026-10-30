@@ -241,12 +241,18 @@ const TargetCursor = ({
         if (text && text !== lastLabel) label.textContent = text;
         if (text) lastLabel = text;
         const shown = text ? Math.max(0, Math.min(1, lock.x)) : 0;
-        label.style.transform = `translate3d(${left.toFixed(2)}px, ${(top - 8).toFixed(2)}px, 0) translateY(-100%) translateY(${((1 - shown) * 4).toFixed(2)}px)`;
+        const isOffTop = top < 32;
+        const labelY = isOffTop ? (top + (h * 2) + 10) : (top - 8);
+        const yOffset = isOffTop ? -((1 - shown) * 4) : ((1 - shown) * 4);
+        const transformY = isOffTop ? '' : 'translateY(-100%) ';
+        label.style.transform = `translate3d(${left.toFixed(2)}px, ${labelY.toFixed(2)}px, 0) ${transformY}translateY(${yOffset.toFixed(2)}px)`;
         label.style.opacity = shown.toFixed(3);
       }
 
-      const mix = s.cursorColorOnTarget ? Math.round(Math.max(0, Math.min(1, lock.x)) * 100) : 0;
-      const color = mix ? `color-mix(in oklab, ${s.cursorColorOnTarget} ${mix}%, ${s.cursorColor})` : s.cursorColor;
+      const mix = s.cursorColorOnTarget && s.cursorColorOnTarget !== s.cursorColor
+        ? Math.round(Math.max(0, Math.min(1, lock.x)) * 100)
+        : 0;
+      const color = mix ? `color-mix(in oklab, ${s.cursorColorOnTarget} ${mix}%, ${s.cursorColor})` : (s.cursorColor || '#ffffff');
       if (color !== lastColor) {
         root.style.setProperty('--target-cursor-color', color);
         lastColor = color;
@@ -352,8 +358,13 @@ const TargetCursor = ({
   return createPortal(
     <div
       ref={rootRef}
-      className="pointer-events-none fixed inset-0 z-[2147483647]"
-      style={{ mixBlendMode: blendMode, opacity: 0 }}
+      className="pointer-events-none fixed inset-0"
+      style={{
+        mixBlendMode: blendMode,
+        opacity: 0,
+        zIndex: 2147483647,
+        pointerEvents: 'none',
+      }}
       aria-hidden="true"
     >
       {CORNER_ANGLES.map((angle, i) => (
@@ -362,16 +373,25 @@ const TargetCursor = ({
           ref={element => {
             cornerRefs.current[i] = element;
           }}
-          className="absolute top-0 left-0 box-border origin-top-left border-solid [border-color:var(--target-cursor-color,#ffffff)] will-change-transform"
+          className="absolute top-0 left-0 box-border origin-top-left border-solid will-change-transform"
+          style={{
+            borderColor: 'var(--target-cursor-color, #ffffff)',
+          }}
         />
       ))}
       <span
         ref={dotRef}
-        className="absolute top-0 left-0 rounded-full [background:var(--target-cursor-color,#ffffff)] will-change-transform"
+        className="absolute top-0 left-0 rounded-full will-change-transform"
+        style={{
+          backgroundColor: 'var(--target-cursor-color, #ffffff)',
+        }}
       />
       <span
         ref={labelRef}
-        className="absolute top-0 left-0 text-[12px] leading-none font-medium whitespace-nowrap opacity-0 [color:var(--target-cursor-color,#ffffff)] will-change-[transform,opacity]"
+        className="absolute top-0 left-0 text-[11px] font-mono font-bold tracking-wider uppercase leading-none whitespace-nowrap opacity-0 will-change-[transform,opacity]"
+        style={{
+          color: 'var(--target-cursor-color, #ffffff)',
+        }}
       />
     </div>,
     host
