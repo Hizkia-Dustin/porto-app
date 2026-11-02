@@ -1,4 +1,6 @@
-@import "tailwindcss";
+@import "tailwindcss" source(none);
+@source "./";
+@source "../components/";
 
 :root { color-scheme: light; background: #e20b3a; color: #15100e; }
 * { box-sizing: border-box; }

@@ -1,0 +1,33 @@
+---
+// ENGINE TEST PAGE. Replace entirely with the art-directed composition.
+import Base from '../layouts/Base.astro';
+import { site, projects } from '../data/site';
+---
+<Base>
+  <header slot="header" class="t-header">
+    <a href="/">{site.name}</a>
+    <a href={`mailto:${site.email}`} data-magnetic>Email</a>
+  </header>
+  <section class="t-hero">
+    <h1 data-split="chars" data-intro>{site.name}</h1>
+    <p data-split="lines" data-intro data-delay="0.3">{site.description}</p>
+  </section>
+  <section class="t-work" aria-label="Selected work">
+    {projects.map((p) => (
+      <a class="t-card" href={`/work/${p.slug}/`} data-cursor="View">
+        <figure data-gl="procedural" data-seed={p.cover.seed} data-colors={site.glPalette.join(',')}>
+          <div class="gl-fallback" role="img" aria-label={p.cover.alt}></div>
+        </figure>
+        <h2 data-split="lines">{p.title}</h2>
+      </a>
+    ))}
+  </section>
+</Base>
+<style>
+  .t-header { position: fixed; inset: 0 0 auto; z-index: var(--z-header); display: flex; justify-content: space-between; padding: var(--gutter); }
+  .t-hero { min-height: 100dvh; display: grid; align-content: end; padding: var(--gutter); gap: var(--u); }
+  .t-hero h1 { font-family: var(--f-display); font-size: var(--t-mega); line-height: 0.85; letter-spacing: -0.04em; }
+  .t-work { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 28rem), 1fr)); gap: var(--gutter); padding: var(--gutter); }
+  .t-card figure { aspect-ratio: 4 / 5; }
+  .t-card h2 { margin-top: var(--u); font-size: var(--t-m); }
+</style>

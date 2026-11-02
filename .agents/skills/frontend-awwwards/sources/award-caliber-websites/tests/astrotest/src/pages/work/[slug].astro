@@ -1,0 +1,27 @@
+---
+import Base from '../../layouts/Base.astro';
+import { site, projects } from '../../data/site';
+export function getStaticPaths() {
+  return projects.map((p, i) => ({ params: { slug: p.slug }, props: { project: p, next: projects[(i + 1) % projects.length] } }));
+}
+const { project, next } = Astro.props;
+---
+<Base title={project.title} description={project.summary}>
+  <header slot="header" class="t-header"><a href="/">{site.name}</a><a href="/">Index</a></header>
+  <article class="t-case">
+    <h1 data-split="lines" data-intro>{project.title}</h1>
+    <p data-reveal="up" data-intro data-delay="0.2">{project.client}, {project.year}. {project.role.join(', ')}.</p>
+    <figure data-gl="procedural" data-seed={project.cover.seed} data-colors={site.glPalette.join(',')}>
+      <div class="gl-fallback" role="img" aria-label={project.cover.alt}></div>
+    </figure>
+    {project.body.map((b) => (<section><h2 data-split="lines">{b.heading}</h2><p data-reveal="up">{b.text}</p></section>))}
+    <a class="t-next" href={`/work/${next.slug}/`} data-cursor="Next">Next: {next.title}</a>
+  </article>
+</Base>
+<style>
+  .t-header { position: fixed; inset: 0 0 auto; z-index: var(--z-header); display: flex; justify-content: space-between; padding: var(--gutter); }
+  .t-case { padding: 30vh var(--gutter) var(--gutter); display: grid; gap: calc(var(--u) * 4); }
+  .t-case h1 { font-family: var(--f-display); font-size: var(--t-xl); line-height: 0.9; }
+  .t-case figure { aspect-ratio: 16 / 9; }
+  .t-next { font-size: var(--t-l); padding-block: 20vh; }
+</style>

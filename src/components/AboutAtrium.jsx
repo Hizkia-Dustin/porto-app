@@ -5,9 +5,11 @@ import * as THREE from "three";
 import { ArrowRight, ZoomOut } from "lucide-react";
 import { useLenis } from "lenis/react";
 import ShuffleText from "./ShuffleText";
-import { createAboutJourney, scrollToTravel } from "../lib/aboutJourney.mjs";
-import { floorHeight as floorY, groundedBoxGeometry } from "../lib/aboutGeometry.mjs";
+import { ABOUT_LEG_COUNT, ABOUT_SCROLL_SEGMENTS, createAboutJourney, scrollToTravel } from "../lib/aboutJourney.mjs";
+import { floorHeight as floorY, groundedBoxGeometry, floorShadowGeometry } from "../lib/aboutGeometry.mjs";
 import { museumExhibits, roomStops } from "../lib/aboutExhibits.mjs";
+import { createAboutParticles } from "../lib/aboutParticles.mjs";
+import { createAboutLighting } from "../lib/aboutLighting.mjs";
 import styles from "./Portfolio.module.css";
 
 const WIDTH = 1487;
@@ -57,7 +59,7 @@ export default function AboutAtrium() {
   const [activeStop, setActiveStop] = useState(0);
   const [zoomedLeaf, setZoomedLeaf] = useState(null);
   const zoomedLeafRef = useRef(null);
-  zoomedLeafRef.current = zoomedLeaf;
+  useEffect(() => { zoomedLeafRef.current = zoomedLeaf; }, [zoomedLeaf]);
   const wakeRef = useRef(null);
   const lenis = useLenis();
 
@@ -65,15 +67,17 @@ export default function AboutAtrium() {
     setZoomedLeaf(target);
     zoomedLeafRef.current = target;
     if (target) {
-      navigateRoom((target.exhibitIndex + 3) / 6);
+      navigateRoom((target.exhibitIndex + 3) / ABOUT_SCROLL_SEGMENTS);
     }
     if (wakeRef.current) wakeRef.current();
   }
 
-  function navigateRoom(destination) {
+  function navigateRoom(destination, exit = false) {
     const section = sectionRef.current;
     const top = window.scrollY + section.getBoundingClientRect().top;
-    const targetY = top + (section.offsetHeight - stageRef.current.clientHeight) * destination;
+    const targetY = exit
+      ? top + section.offsetHeight
+      : top + (section.offsetHeight - stageRef.current.clientHeight) * destination;
     if (lenis) {
       lenis.scrollTo(targetY, { duration: 1.2 });
     } else {
@@ -112,17 +116,51 @@ export default function AboutAtrium() {
       const camera = new THREE.PerspectiveCamera(FOV, WIDTH / HEIGHT, 0.1, 100);
       const materials = new Set();
       const textures = [];
+      const lighting = createAboutLighting();
+      scene.add(lighting.group);
+      lighting.materials.forEach(value => materials.add(value));
+      const particles = createAboutParticles();
+      lighting.illuminate(particles.points.material, true);
+      scene.add(particles.points);
+      materials.add(particles.points.material);
 
       function material(color = RED, map = null) {
         const value = new THREE.MeshBasicMaterial({ color: map ? "#ffffff" : color, map, side: THREE.DoubleSide, polygonOffset: true, polygonOffsetFactor: 1, polygonOffsetUnits: 1 });
+        lighting.illuminate(value);
         materials.add(value);
         return value;
       }
       const red = material();
-      const sideRed = material("#b20930");
+      const sideRed = material("#8e0a29");
+      const ceilingRed = material("#b21339");
+      const ceilingRim = material("#780c29");
+      const ceilingReveal = material("#4e101e");
+      const leftWallRed = material("#bf0b33");
+      const rightWallRed = material("#ca0c36");
       const black = material(INK);
       const edge = new THREE.LineBasicMaterial({ color: INK });
       materials.add(edge);
+
+      // Soft contact shadows conform to the sloped floor without shadow-map cost.
+      const shadowCanvas = document.createElement("canvas");
+      shadowCanvas.width = shadowCanvas.height = 128;
+      const shadowContext = shadowCanvas.getContext("2d");
+      const shadowGradient = shadowContext.createRadialGradient(64, 64, 8, 64, 64, 64);
+      shadowGradient.addColorStop(0, "rgba(16,20,19,0.6)");
+      shadowGradient.addColorStop(0.45, "rgba(16,20,19,0.32)");
+      shadowGradient.addColorStop(1, "rgba(16,20,19,0)");
+      shadowContext.fillStyle = shadowGradient;
+      shadowContext.fillRect(0, 0, 128, 128);
+      const shadowTexture = new THREE.CanvasTexture(shadowCanvas);
+      textures.push(shadowTexture);
+      const shadowMaterial = new THREE.MeshBasicMaterial({ map: shadowTexture, transparent: true, depthWrite: false, side: THREE.DoubleSide });
+      materials.add(shadowMaterial);
+      function contactShadow(x, z, width, depth, rotation = 0) {
+        const geometry = floorShadowGeometry(width, depth, x, z, rotation);
+        const shadow = new THREE.Mesh(geometry, shadowMaterial);
+        shadow.name = "Floor contact shadow";
+        scene.add(shadow);
+      }
 
       function path(points, parent = scene, lineMaterial = edge) {
         const geometry = new THREE.BufferGeometry().setFromPoints(points);
@@ -218,7 +256,7 @@ export default function AboutAtrium() {
       }
 
       const floorPoint = (x, z) => new THREE.Vector3(x, floorY(-z), z);
-      const ceilingPoint = (x, z) => new THREE.Vector3(x, 6.4, z);
+      const ceilingPoint = (x, z, height = 6.4) => new THREE.Vector3(x, height, z);
       function plane(points, surface = red) {
         const geometry = new THREE.BufferGeometry().setFromPoints(points);
         geometry.setIndex([0, 1, 2, 0, 2, 3]);
@@ -229,10 +267,20 @@ export default function AboutAtrium() {
 
       // The full room encloses the entire camera path, not just the initial view.
       plane([floorPoint(-25, 5), floorPoint(28, 5), floorPoint(28, -38), floorPoint(-25, -38)]);
-      plane([ceilingPoint(-25, 5), ceilingPoint(28, 5), ceilingPoint(28, -38), ceilingPoint(-25, -38)]);
+      // Recessed ceiling: the dark reveal gives the entrance an actual depth edge.
+      plane([ceilingPoint(-25, 5), ceilingPoint(28, 5), ceilingPoint(28, -5), ceilingPoint(-25, -5)], ceilingRim);
+      plane([ceilingPoint(-25, -5), ceilingPoint(-20, -5), ceilingPoint(-20, -33), ceilingPoint(-25, -33)], ceilingRim);
+      plane([ceilingPoint(23, -5), ceilingPoint(28, -5), ceilingPoint(28, -33), ceilingPoint(23, -33)], ceilingRim);
+      plane([ceilingPoint(-25, -33), ceilingPoint(28, -33), ceilingPoint(28, -38), ceilingPoint(-25, -38)], ceilingRim);
+      const ceilingInset = [ceilingPoint(-20, -5, 7), ceilingPoint(23, -5, 7), ceilingPoint(23, -33, 7), ceilingPoint(-20, -33, 7)];
+      face(ceilingInset, ceilingRed);
+      face([ceilingPoint(-20, -5), ceilingPoint(23, -5), ceilingInset[1], ceilingInset[0]], ceilingReveal);
+      face([ceilingPoint(23, -5), ceilingPoint(23, -33), ceilingInset[2], ceilingInset[1]], ceilingReveal);
+      face([ceilingPoint(23, -33), ceilingPoint(-20, -33), ceilingInset[3], ceilingInset[2]], ceilingReveal);
+      face([ceilingPoint(-20, -33), ceilingPoint(-20, -5), ceilingInset[0], ceilingInset[3]], ceilingReveal);
       plane([ceilingPoint(-25, -38), ceilingPoint(28, -38), floorPoint(28, -38), floorPoint(-25, -38)], black);
-      plane([ceilingPoint(28, -38), ceilingPoint(28, 5), floorPoint(28, 5), floorPoint(28, -38)]);
-      plane([ceilingPoint(-25, 5), ceilingPoint(-25, -38), floorPoint(-25, -38), floorPoint(-25, 5)]);
+      plane([ceilingPoint(28, -38), ceilingPoint(28, 5), floorPoint(28, 5), floorPoint(28, -38)], rightWallRed);
+      plane([ceilingPoint(-25, 5), ceilingPoint(-25, -38), floorPoint(-25, -38), floorPoint(-25, 5)], leftWallRed);
       for (let x = -24; x <= 28; x += 2) {
         const line = path([floorPoint(x, 5), floorPoint(x, -38)]);
         line.position.y = 0.006;
@@ -241,12 +289,12 @@ export default function AboutAtrium() {
         const line = path([floorPoint(-25, z), floorPoint(28, z)]);
         line.position.y = 0.006;
       }
-      for (let x = -24; x <= 28; x += 6) {
-        const line = path([ceilingPoint(x, 5), ceilingPoint(x, -38)]);
+      for (let x = -17; x < 23; x += 3) {
+        const line = path([ceilingPoint(x, -5, 7), ceilingPoint(x, -33, 7)]);
         line.position.y = -0.006;
       }
-      for (let z = -37; z <= 5; z += 6) {
-        const line = path([ceilingPoint(-25, z), ceilingPoint(28, z)]);
+      for (let z = -29; z < -5; z += 6) {
+        const line = path([ceilingPoint(-20, z, 7), ceilingPoint(23, z, 7)]);
         line.position.y = -0.006;
       }
 
@@ -262,6 +310,7 @@ export default function AboutAtrium() {
       }
 
       function createTotem(x, z, rotation) {
+        contactShadow(x + 0.2, z - 0.25, 6.8, 4.4, rotation);
         const exhibit = groundedBlock(4.3, 0.28, 2, x, z, rotation, black);
         const bottom = floorY(-z) + 0.28;
         const bodyGeometry = new THREE.BoxGeometry(3.9, 5.5, 1.4);
@@ -465,6 +514,7 @@ export default function AboutAtrium() {
           const floor0 = j0.y;
           const floor1 = j1.y;
           const base = (floor0 + floor1) / 2;
+          contactShadow(px, pz, 3.2, 1.8, angle);
 
           const group = new THREE.Group();
           group.position.set(px, 0, pz);
@@ -541,7 +591,7 @@ export default function AboutAtrium() {
         };
       });
       const journey = createAboutJourney(codeTotem.target, designTotem.target, gallery.map(panel => panel.target));
-      const legs = [journey, journey.design, ...journey.gallery];
+      const legs = [journey, journey.design, ...journey.gallery, journey.return];
 
       // Grounded volumetric architectural accordion folding wall:
       // Seams connect all panels down to the floor grid, with 3D thickness on top and end caps.
@@ -563,6 +613,11 @@ export default function AboutAtrium() {
       const frontBot = frontSeams.map(([x, y, d]) => new THREE.Vector3(world(x, y, d).x, floorY(d), -d));
       const backTop = frontTop.map(ft => new THREE.Vector3(ft.x, ft.y, ft.z - THICKNESS));
       const backBot = frontBot.map(fb => new THREE.Vector3(fb.x, floorY(-(fb.z - THICKNESS)), fb.z - THICKNESS));
+      for (let i = 0; i < frontBot.length - 1; i++) {
+        const a = frontBot[i], b = frontBot[i + 1];
+        contactShadow((a.x + b.x) / 2, (a.z + b.z) / 2 - THICKNESS / 2,
+          Math.hypot(b.x - a.x, b.z - a.z) + 0.8, 2, Math.atan2(a.z - b.z, b.x - a.x));
+      }
 
       // 1. Top caps: visible architectural thickness across the top edge of every panel
       for (let i = 0; i < frontSeams.length - 1; i++) {
@@ -645,14 +700,17 @@ export default function AboutAtrium() {
         camera.updateMatrixWorld();
         letterControllers.forEach(ctrl => ctrl.update(time, dt));
         projectPanel(copy, panelCorners, camera, width, height);
-        copy.style.opacity = String((1 - THREE.MathUtils.smoothstep(travel, 0.08, 0.28)) * (1 - zoomAmount));
-        copy.inert = travel > 0.28 || zoomAmount > 0.1;
+        const profileOpacity = Math.max(1 - THREE.MathUtils.smoothstep(travel, 0.08, 0.28), THREE.MathUtils.smoothstep(travel, 6.65, 6.95));
+        copy.style.opacity = String(profileOpacity * (1 - zoomAmount));
+        copy.inert = profileOpacity < 0.8 || zoomAmount > 0.1;
         projectPanel(stack, stackCorners, camera, width, height);
         stack.style.opacity = String(THREE.MathUtils.smoothstep(travel, 0.4, 0.65) * (1 - THREE.MathUtils.smoothstep(travel, 1.05, 1.35)) * (1 - zoomAmount));
         stack.inert = travel < 0.4 || travel > 1.35 || zoomAmount > 0.1;
+        stack.style.setProperty("--exhibit-light", String(Math.max(0, 1 - Math.abs(travel - 1))));
         projectPanel(design, designTotem.corners, camera, width, height);
         design.style.opacity = String(THREE.MathUtils.smoothstep(travel, 1.35, 1.7) * (1 - THREE.MathUtils.smoothstep(travel, 2.05, 2.35)) * (1 - zoomAmount));
         design.inert = travel < 1.35 || travel > 2.35 || zoomAmount > 0.1;
+        design.style.setProperty("--exhibit-light", String(Math.max(0, 1 - Math.abs(travel - 2))));
 
         const targetExhibit = activeZoom ? activeZoom.exhibitIndex : lastExhibitIndex;
         const targetLeaf = activeZoom ? activeZoom.leafIndex : lastLeafIndex;
@@ -666,6 +724,7 @@ export default function AboutAtrium() {
             projectPanel(element, corners, camera, width, height, 400, 650);
             const normalOpacity = 1 - THREE.MathUtils.smoothstep(distance, 0.25, 0.65);
             const isThisLeafTarget = isExhibitTarget && targetLeaf === leafIndex;
+            element.style.setProperty("--exhibit-light", String(Math.max(0, 1 - distance) * 0.7 + (isThisLeafTarget ? zoomAmount * 0.65 : 0)));
             let finalOpacity = normalOpacity;
             if (isExhibitTarget && zoomAmount > 0) {
               finalOpacity = THREE.MathUtils.lerp(normalOpacity, isThisLeafTarget ? 1 : 0.85, zoomAmount);
@@ -678,7 +737,11 @@ export default function AboutAtrium() {
         });
         setActiveStop(Math.round(travel));
         stage.style.setProperty("--room-progress", scroll);
-        stage.dataset.view = travel > 1.7 ? "design" : travel > 0.75 ? "skills" : "about";
+        stage.dataset.view = travel > 6.5 ? "about" : travel > 1.7 ? "design" : travel > 0.75 ? "skills" : "about";
+        const lightTarget = scrollLook.clone();
+        if (currentZoomTarget) lightTarget.lerp(currentZoomTarget.look, zoomAmount);
+        lighting.update(lightTarget, dt, motion.matches, zoomAmount, camera.position);
+        particles.update(dt, motion.matches, zoomAmount);
         renderer.render(scene, camera);
         frame = requestAnimationFrame(draw);
       };
@@ -889,11 +952,11 @@ export default function AboutAtrium() {
         </div>
       )}
       <nav className={`${styles.roomNavigation} ${zoomedLeaf ? styles.roomNavHidden : ""}`} aria-label="Explore the About room">
-        <span>{String(activeStop + 2).padStart(2, "0")} / {roomStops[activeStop]}</span>
+        <span>{activeStop === ABOUT_LEG_COUNT ? "02 / ABOUT" : `${String(activeStop + 2).padStart(2, "0")} / ${roomStops[activeStop]}`}</span>
         <span className={styles.roomProgress} aria-hidden="true"><i /></span>
-        {activeStop > 0 && <button type="button" onClick={() => navigateRoom((activeStop - 1) / 6)} aria-label="Previous exhibit">&larr;</button>}
-        <button className="cursor-target" type="button" onClick={() => navigateRoom(activeStop === 6 ? 0 : (activeStop + 1) / 6)}>
-          {activeStop === 6 ? "BACK TO ABOUT" : `EXPLORE ${roomStops[activeStop + 1]}`} <ArrowRight size={18} aria-hidden="true" />
+        {activeStop > 0 && <button type="button" onClick={() => navigateRoom((activeStop - 1) / ABOUT_SCROLL_SEGMENTS)} aria-label="Previous exhibit">&larr;</button>}
+        <button className="cursor-target" type="button" onClick={() => navigateRoom((activeStop + 1) / ABOUT_SCROLL_SEGMENTS, activeStop === ABOUT_LEG_COUNT)}>
+          {activeStop === ABOUT_LEG_COUNT ? "CONTINUE TO WORK" : activeStop === 6 ? "BACK TO ABOUT" : `EXPLORE ${roomStops[activeStop + 1]}`} <ArrowRight size={18} aria-hidden="true" />
         </button>
       </nav>
       </div>

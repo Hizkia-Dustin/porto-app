@@ -1,7 +1,7 @@
 import assert from "node:assert/strict";
 import test from "node:test";
 import { PerspectiveCamera, Vector3 } from "three";
-import { createAboutJourney, scrollToTravel } from "../src/lib/aboutJourney.mjs";
+import { ABOUT_LEG_COUNT, ABOUT_SCROLL_SEGMENTS, createAboutJourney, scrollToTravel } from "../src/lib/aboutJourney.mjs";
 import { floorHeight, groundedBoxGeometry } from "../src/lib/aboutGeometry.mjs";
 
 const target = new Vector3(9, floorHeight(16) + 3.03, -16);
@@ -12,12 +12,12 @@ const journey = createAboutJourney(target, designTarget, galleryTargets);
 
 test("scroll can reverse and holds both readable endpoints", () => {
   assert.equal(scrollToTravel(-1), 0);
-  for (let i = 0; i <= 6; i++) {
-    assert.equal(scrollToTravel(i / 6), i);
-    assert.equal(scrollToTravel(i / 6, true), i);
-    assert.equal(scrollToTravel(Math.min(1, (i + 0.1) / 6)), i);
+  for (let i = 0; i <= ABOUT_LEG_COUNT; i++) {
+    assert.equal(scrollToTravel(i / ABOUT_SCROLL_SEGMENTS), i);
+    assert.equal(scrollToTravel(i / ABOUT_SCROLL_SEGMENTS, true), i);
+    assert.equal(scrollToTravel(Math.min(1, (i + 0.1) / ABOUT_SCROLL_SEGMENTS)), i);
   }
-  assert.equal(scrollToTravel(2), 6);
+  assert.equal(scrollToTravel(2), ABOUT_LEG_COUNT);
   for (let i = 0; i <= 100; i++) {
     const t = i / 100;
     assert.ok(scrollToTravel(t) >= scrollToTravel(t - 0.01));
@@ -25,6 +25,28 @@ test("scroll can reverse and holds both readable endpoints", () => {
 
   assert.ok(journey.camera.getPoint(1).distanceTo(journey.design.camera.getPoint(0)) < 1e-10);
   assert.ok(journey.look.getPoint(1).distanceTo(journey.design.look.getPoint(0)) < 1e-10);
+});
+
+test("last exhibit returns around the wall to the original About before exiting", () => {
+  const last = journey.gallery.at(-1);
+  for (const key of ["camera", "look"]) {
+    assert.ok(journey.return[key].getPoint(0).distanceTo(last[key].getPoint(1)) < 1e-9);
+    assert.ok(journey.return[key].getPoint(1).distanceTo(journey[key].getPoint(0)) < 1e-9);
+  }
+  for (let i = 0; i <= 200; i++) {
+    const p = journey.return.camera.getPoint(i / 200);
+    assert.ok(p.toArray().every(Number.isFinite));
+    assert.ok(p.x > -25 && p.x < 28 && p.z > -38 && p.z < 5);
+    assert.ok(p.y > floorHeight(-p.z) + 1 && p.y < 6.4);
+    assert.ok(p.z > -6 || p.x < -12, "return must go around the profile wall");
+  }
+  assert.equal(scrollToTravel(6 / ABOUT_SCROLL_SEGMENTS), 6);
+  assert.ok(scrollToTravel(6.5 / ABOUT_SCROLL_SEGMENTS) > 6);
+  assert.equal(scrollToTravel(6.9 / ABOUT_SCROLL_SEGMENTS), 7, "hold the restored About before exit");
+  assert.ok(7 / ABOUT_SCROLL_SEGMENTS < 1, "return button must land before the sticky boundary");
+  for (const progress of [7 / ABOUT_SCROLL_SEGMENTS, 0.95, 1]) {
+    assert.equal(scrollToTravel(progress), 7);
+  }
 });
 
 test("design leg stays inside the room and frames the second totem", () => {

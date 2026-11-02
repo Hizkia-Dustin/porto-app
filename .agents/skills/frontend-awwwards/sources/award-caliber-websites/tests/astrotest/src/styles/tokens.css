@@ -1,0 +1,47 @@
+/* DESIGN TOKENS: rewrite this whole file per project from the art-direction plan.
+   These neutral values only exist so the engine renders. Shipping them unchanged is a failure. */
+
+@font-face {
+  font-family: 'Display';
+  src: local('Arial');
+  font-display: swap;
+}
+
+:root {
+  /* Color: name by role, not by hue. */
+  --c-bg: #f2f2f2;
+  --c-fg: #101010;
+  --c-muted: #6b6b6b;
+  --c-line: rgb(16 16 16 / 0.14);
+  --c-accent: #101010;
+  --c-curtain: var(--c-fg);
+
+  /* Type families */
+  --f-display: 'Display', system-ui, sans-serif;
+  --f-body: system-ui, sans-serif;
+
+  /* Fluid type scale (min @ 375px → max @ 1440px) */
+  --t-mega: clamp(4rem, 1.2rem + 14vw, 16rem);
+  --t-xl: clamp(2.5rem, 1.4rem + 4.8vw, 6rem);
+  --t-l: clamp(1.75rem, 1.3rem + 1.9vw, 3rem);
+  --t-m: clamp(1.25rem, 1.1rem + 0.6vw, 1.625rem);
+  --t-body: clamp(1rem, 0.95rem + 0.2vw, 1.125rem);
+  --t-s: 0.875rem;
+  --t-xs: 0.75rem;
+
+  /* Space: one fluid unit, multiplied. Vary section rhythm deliberately. */
+  --u: clamp(0.5rem, 0.35rem + 0.6vw, 1rem);
+  --gutter: clamp(1rem, 0.6rem + 1.6vw, 2.5rem);
+  --cols: 12;
+
+  /* Shape: one radius rule for the whole site. */
+  --radius: 0px;
+
+  /* Layers */
+  --z-gl: 0;
+  --z-content: 1;
+  --z-header: 50;
+  --z-cursor: 80;
+  --z-curtain: 90;
+  --z-loader: 100;
+}

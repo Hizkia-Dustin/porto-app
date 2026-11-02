@@ -1,0 +1,267 @@
+{
+  "name": "skills",
+  "owner": {
+    "name": "microsoft",
+    "url": "https://github.com/microsoft"
+  },
+  "metadata": {
+    "description": "Skills, agents, and plugins for AI coding agents working with Azure SDKs and Microsoft AI Foundry",
+    "version": "1.0.0"
+  },
+  "renames": {
+    "azure-skills": "azure"
+  },
+  "plugins": [
+    {
+      "name": "deep-wiki",
+      "source": "./.github/plugins/deep-wiki",
+      "description": "AI-powered wiki generator for code repositories. Generates comprehensive, Mermaid-rich structured documentation with architecture diagrams, component analysis, and source citations.",
+      "version": "1.0.0",
+      "author": {
+        "name": "thegovind",
+        "url": "https://github.com/thegovind"
+      },
+      "homepage": "https://github.com/microsoft/skills/tree/main/.github/plugins/deep-wiki",
+      "repository": "https://github.com/microsoft/skills",
+      "license": "MIT",
+      "keywords": [
+        "wiki",
+        "documentation",
+        "mermaid",
+        "architecture",
+        "code-analysis"
+      ],
+      "category": "documentation",
+      "tags": [
+        "deep-wiki",
+        "diagrams",
+        "citations",
+        "codebase-understanding"
+      ],
+      "commands": "commands/",
+      "skills": "skills/",
+      "agents": "agents/",
+      "strict": true
+    },
+    {
+      "name": "azure",
+      "description": "Microsoft Azure MCP and Skills integration for cloud resource management, deployments, and Azure services. Manage your Azure infrastructure, monitor applications, and deploy resources directly from your development environment.",
+      "source": "./.github/plugins/azure-skills",
+      "author": {
+        "name": "Microsoft",
+        "url": "https://www.microsoft.com"
+      },
+      "homepage": "https://github.com/microsoft/github-copilot-for-azure",
+      "repository": "https://github.com/microsoft/github-copilot-for-azure",
+      "license": "MIT"
+    },
+    {
+      "name": "azure-sdk-python",
+      "description": "Azure SDK patterns and best practices for Python developers covering AI, storage, identity, monitoring, messaging, and management libraries.",
+      "source": "./.github/plugins/azure-sdk-python",
+      "version": "1.0.0",
+      "author": {
+        "name": "microsoft",
+        "url": "https://www.microsoft.com"
+      },
+      "homepage": "https://github.com/microsoft/skills/tree/main/.github/plugins/azure-sdk-python",
+      "repository": "https://github.com/microsoft/skills",
+      "license": "MIT",
+      "keywords": [
+        "azure",
+        "python",
+        "sdk",
+        "ai",
+        "storage",
+        "identity",
+        "monitoring"
+      ],
+      "category": "sdk",
+      "skills": "skills/"
+    },
+    {
+      "name": "azure-sdk-dotnet",
+      "description": "Azure SDK patterns and best practices for .NET developers covering AI, resource management, identity, messaging, and Key Vault libraries.",
+      "source": "./.github/plugins/azure-sdk-dotnet",
+      "version": "1.0.0",
+      "author": {
+        "name": "microsoft",
+        "url": "https://www.microsoft.com"
+      },
+      "homepage": "https://github.com/microsoft/skills/tree/main/.github/plugins/azure-sdk-dotnet",
+      "repository": "https://github.com/microsoft/skills",
+      "license": "MIT",
+      "keywords": [
+        "azure",
+        "dotnet",
+        "csharp",
+        "sdk",
+        "resource-manager",
+        "identity"
+      ],
+      "category": "sdk",
+      "skills": "skills/"
+    },
+    {
+      "name": "azure-sdk-typescript",
+      "description": "Azure SDK patterns and best practices for TypeScript/Node.js developers covering AI, storage, identity, monitoring, and messaging libraries.",
+      "source": "./.github/plugins/azure-sdk-typescript",
+      "version": "1.0.0",
+      "author": {
+        "name": "microsoft",
+        "url": "https://www.microsoft.com"
+      },
+      "homepage": "https://github.com/microsoft/skills/tree/main/.github/plugins/azure-sdk-typescript",
+      "repository": "https://github.com/microsoft/skills",
+      "license": "MIT",
+      "keywords": [
+        "azure",
+        "typescript",
+        "nodejs",
+        "sdk",
+        "ai",
+        "storage"
+      ],
+      "category": "sdk",
+      "skills": "skills/"
+    },
+    {
+      "name": "azure-sdk-java",
+      "description": "Azure SDK patterns and best practices for Java developers covering AI, communication, storage, identity, monitoring, and management libraries.",
+      "source": "./.github/plugins/azure-sdk-java",
+      "version": "1.0.0",
+      "author": {
+        "name": "microsoft",
+        "url": "https://www.microsoft.com"
+      },
+      "homepage": "https://github.com/microsoft/skills/tree/main/.github/plugins/azure-sdk-java",
+      "repository": "https://github.com/microsoft/skills",
+      "license": "MIT",
+      "keywords": [
+        "azure",
+        "java",
+        "sdk",
+        "communication",
+        "eventhub",
+        "identity"
+      ],
+      "category": "sdk",
+      "skills": "skills/"
+    },
+    {
+      "name": "azure-sdk-rust",
+      "description": "Azure SDK patterns and best practices for Rust developers covering identity, Key Vault, storage, Cosmos DB, and Event Hubs.",
+      "source": "./.github/plugins/azure-sdk-rust",
+      "version": "1.0.0",
+      "author": {
+        "name": "microsoft",
+        "url": "https://www.microsoft.com"
+      },
+      "homepage": "https://github.com/microsoft/skills/tree/main/.github/plugins/azure-sdk-rust",
+      "repository": "https://github.com/microsoft/skills",
+      "license": "MIT",
+      "keywords": [
+        "azure",
+        "rust",
+        "sdk",
+        "keyvault",
+        "storage",
+        "cosmos"
+      ],
+      "category": "sdk",
+      "skills": "skills/"
+    },
+    {
+      "name": "microsoft-foundry",
+      "description": "All-in-one plugin for Microsoft AI Foundry. 39 SDK skills across Python, .NET, TypeScript, and Java for agents, voice, search, content safety, and model deployment. Includes Azure MCP, Foundry MCP, and Microsoft Docs MCP servers.",
+      "source": "./.github/plugins/microsoft-foundry",
+      "version": "1.0.0",
+      "author": {
+        "name": "microsoft",
+        "url": "https://www.microsoft.com"
+      },
+      "homepage": "https://github.com/microsoft/skills/tree/main/.github/plugins/microsoft-foundry",
+      "repository": "https://github.com/microsoft/skills",
+      "license": "MIT",
+      "keywords": [
+        "foundry",
+        "azure-ai",
+        "agents",
+        "voice",
+        "search",
+        "rag",
+        "content-safety",
+        "model-deployment",
+        "mcp"
+      ],
+      "category": "ai",
+      "skills": "skills/"
+    },
+    {
+      "name": "azure-kusto-graph-skills",
+      "source": "./.github/plugins/azure-kusto-graph-skills",
+      "description": "Kusto graph analysis, IRQL security hunting pipelines, and graph visualization skills for Azure Data Explorer.",
+      "author": {
+        "name": "Microsoft",
+        "url": "https://www.microsoft.com"
+      },
+      "homepage": "https://github.com/microsoft/github-copilot-for-azure",
+      "repository": "https://github.com/microsoft/github-copilot-for-azure"
+    },
+    {
+      "name": "azure-local-skills",
+      "source": "./.github/plugins/azure-local-skills",
+      "description": "Azure Local skills covering standard deployments (Azure Stack HCI, 1-16 node hyperconverged, rack-aware clusters) and multi-rack (rack scale) deployments built on Network Fabric Controller, Cluster Manager, and managed network fabric.",
+      "author": {
+        "name": "Microsoft",
+        "url": "https://www.microsoft.com"
+      },
+      "homepage": "https://github.com/microsoft/github-copilot-for-azure",
+      "repository": "https://github.com/microsoft/github-copilot-for-azure"
+    },
+    {
+      "name": "foundry-iq-skills",
+      "source": "./.github/plugins/foundry-iq-skills",
+      "description": "Create and retrieve from a Foundry IQ knowledge base using File, Azure Blob, or ADLS Gen2, then connect an existing Prompt or Hosted Agent.",
+      "author": {
+        "name": "Microsoft",
+        "url": "https://www.microsoft.com"
+      },
+      "homepage": "https://github.com/microsoft/github-copilot-for-azure",
+      "repository": "https://github.com/microsoft/github-copilot-for-azure"
+    },
+    {
+      "name": "azure-cost",
+      "source": "./.github/plugins/azure-cost",
+      "description": "Azure cost analysis, estimation, optimization, and governance workflows backed by Azure Resource Manager MCP.",
+      "author": {
+        "name": "Microsoft",
+        "url": "https://www.microsoft.com"
+      },
+      "homepage": "https://github.com/microsoft/github-copilot-for-azure",
+      "repository": "https://github.com/microsoft/github-copilot-for-azure"
+    },
+    {
+      "name": "aks-skills",
+      "source": "./.github/plugins/aks-skills",
+      "description": "AKS operational skills for troubleshooting, advanced cost-efficiency analysis, known issues, GPU inference, and packet capture.",
+      "author": {
+        "name": "Microsoft",
+        "url": "https://www.microsoft.com"
+      },
+      "homepage": "https://github.com/microsoft/github-copilot-for-azure",
+      "repository": "https://github.com/microsoft/github-copilot-for-azure"
+    },
+    {
+      "name": "azure-advisor",
+      "source": "./.github/plugins/azure-advisor",
+      "description": "Azure Advisor recommendations, service-retirement impact, and customer-ready remediation guidance.",
+      "author": {
+        "name": "Microsoft",
+        "url": "https://www.microsoft.com"
+      },
+      "homepage": "https://github.com/microsoft/github-copilot-for-azure",
+      "repository": "https://github.com/microsoft/github-copilot-for-azure"
+    }
+  ]
+}

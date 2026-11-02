@@ -6,6 +6,8 @@ import ScrollProgress from "./reactbits/ScrollProgress";
 import TargetCursor from "./TargetCursor";
 import Topography from "./Topography";
 import AboutAtrium from "./AboutAtrium";
+import WorkSection from "./WorkSection";
+import { useLenis } from "lenis/react";
 import styles from "./Portfolio.module.css";
 
 const assets = "/assets/figma/red-hero";
@@ -30,6 +32,7 @@ export default function Portfolio() {
   const hero = useRef(null);
   const dialog = useRef(null);
   const [panel, setPanel] = useState("");
+  const lenis = useLenis();
 
   useEffect(() => {
     const element = hero.current;
@@ -94,7 +97,7 @@ export default function Portfolio() {
           </div>
           <nav className={styles.nav} aria-label="Main navigation">
             <a className="cursor-target" href="#about" data-cursor-label="ABOUT">ABOUT</a>
-            <button className="cursor-target" type="button" onClick={() => openPanel("Work")} data-cursor-label="WORK">WORK</button>
+            <a className="cursor-target" href="#work" onClick={event => { if (lenis && !event.metaKey && !event.ctrlKey && !event.shiftKey && !event.altKey) { event.preventDefault(); lenis.scrollTo("#work", { duration: 1.5 }); history.replaceState(null, "", "#work"); } }} data-cursor-label="WORK">WORK</a>
             <button className="cursor-target" type="button" onClick={() => openPanel("Contact")} data-cursor-label="CONTACT">CONTACT</button>
           </nav>
         </header>
@@ -146,6 +149,7 @@ export default function Portfolio() {
       </div>
       </section>
       <AboutAtrium />
+      <WorkSection />
       <dialog className={styles.dialog} ref={dialog} onClick={(event) => {
         if (event.target === event.currentTarget) dialog.current.close();
       }}>

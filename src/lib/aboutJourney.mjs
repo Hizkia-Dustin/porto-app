@@ -1,5 +1,9 @@
 import { CatmullRomCurve3, MathUtils, Vector3 } from "three";
 
+export const ABOUT_LEG_COUNT = 7;
+// Reserve one viewport after the return so the next section cannot enter mid-flight.
+export const ABOUT_SCROLL_SEGMENTS = ABOUT_LEG_COUNT + 0.5;
+
 export function createAboutJourney(target, designTarget, galleryTargets = []) {
   const journey = {
     camera: new CatmullRomCurve3([
@@ -31,11 +35,25 @@ export function createAboutJourney(target, designTarget, galleryTargets = []) {
       look: new CatmullRomCurve3([i === 0 ? designTarget.clone() : galleryTargets[i - 1].clone(), target.clone(), target.clone()]),
     };
   });
+  const last = journey.gallery.at(-1) ?? journey.design;
+  journey.return = {
+    // Go around the left end of the profile wall before returning to its front.
+    camera: new CatmullRomCurve3([
+      last.camera.getPoint(1), new Vector3(-19, 1.5, -13),
+      new Vector3(-18, 0.8, -4), new Vector3(-9, 0.2, 1),
+      journey.camera.getPoint(0),
+    ]),
+    look: new CatmullRomCurve3([
+      last.look.getPoint(1), new Vector3(-15, 0, -16),
+      new Vector3(-7, 0, -13), journey.look.getPoint(0),
+      journey.look.getPoint(0),
+    ]),
+  };
   return journey;
 }
 
 export function scrollToTravel(scroll, reducedMotion = false) {
-  const position = MathUtils.clamp(scroll, 0, 1) * 6;
+  const position = MathUtils.clamp(scroll * ABOUT_SCROLL_SEGMENTS, 0, ABOUT_LEG_COUNT);
   if (reducedMotion) return Math.round(position);
   const leg = Math.floor(position);
   return leg + MathUtils.smoothstep(position - leg, 0.16, 0.84);

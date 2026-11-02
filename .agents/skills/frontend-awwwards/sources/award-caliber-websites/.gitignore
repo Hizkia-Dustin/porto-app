@@ -1,0 +1,49 @@
+# Keep this repository limited to the skills.
+/*
+!/.gitignore
+!/.gitattributes
+!/.github/
+!/.claude-plugin/
+!/.agents/
+!/awwwards/
+!/jury/
+!/README.md
+!/LICENSE
+
+# Tests: only the generator, the two fixture apps the references are built from, and the audit fixture.
+# Sites built with the skill (mara, julio, kestrel, ...) stay local.
+!/tests/
+/tests/*
+!/tests/README.md
+!/tests/smoke.mjs
+!/tests/audit/
+!/tests/_gen/
+!/tests/nexttest/
+!/tests/astrotest/
+
+# Dependencies and generated site files (at any depth)
+node_modules/
+dist/
+.astro/
+.next/
+*.tsbuildinfo
+next-env.d.ts
+.shots*/
+
+# Generated archives, smoke tests, and coverage
+*.tgz
+test-output/
+coverage/
+
+# Local environment and logs
+.env
+.env.*
+!.env.example
+!.env.sample
+*.log
+
+# Editor state, local plans, and OS files
+.idea/
+.junie/plans/
+.DS_Store
+Thumbs.db

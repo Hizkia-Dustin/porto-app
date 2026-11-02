@@ -1,0 +1,23 @@
+name: Idea or new pattern
+description: Suggest a pattern, reference, script or a new skill.
+labels: [enhancement]
+body:
+  - type: textarea
+    id: problem
+    attributes:
+      label: What's missing
+      description: What the agent gets wrong or can't do today. Real examples help most.
+    validations:
+      required: true
+  - type: textarea
+    id: proposal
+    attributes:
+      label: Proposal
+      description: What should change, and where (SKILL.md, a reference file, a script).
+    validations:
+      required: true
+  - type: textarea
+    id: references
+    attributes:
+      label: References
+      description: Links to sites, Awwwards entries or code that show the idea.

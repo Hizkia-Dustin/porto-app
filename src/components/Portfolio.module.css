@@ -157,7 +157,7 @@
 .about {
   position: relative;
   width: 100%;
-  height: 1300svh;
+  height: 1600svh;
   background: #e20b3a;
 }
 .aboutStage {
@@ -422,6 +422,16 @@
 }
 .museumPanelZoomed {
   box-shadow: 0 0 50px rgba(226, 11, 58, 0.45);
+}
+.stackTotem::after,
+.museumPanel::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background: radial-gradient(ellipse 85% 75% at 50% -8%, #ffd9bd40 0%, #ffb39818 42%, transparent 80%);
+  box-shadow: inset 0 1px 0 #ffcfb855;
+  opacity: var(--exhibit-light, 0);
 }
 .roomNavHidden {
   opacity: 0;
