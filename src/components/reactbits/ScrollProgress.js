@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useRef } from "react";
 
 // Adapted from React Bits' Scroll Progress:
 // https://reactbits.dev/components/scroll-progress
@@ -11,29 +11,32 @@ export default function ScrollProgress({
   thickness = 3,
   className = "",
 }) {
-  const [progress, setProgress] = useState(0);
+  const topBar = useRef(null);
+  const sideBar = useRef(null);
 
   useEffect(() => {
+    let distance = 0;
     const handleScroll = () => {
-      const { scrollTop, scrollHeight, clientHeight } = document.documentElement;
-      const totalScroll = scrollHeight - clientHeight;
-      if (totalScroll <= 0) {
-        setProgress(0);
-        return;
-      }
-      const current = Math.min(1, Math.max(0, scrollTop / totalScroll));
-      setProgress(current);
+      const current = distance > 0 ? Math.min(1, Math.max(0, window.scrollY / distance)) : 0;
+      if (topBar.current) topBar.current.style.transform = `scaleX(${current})`;
+      if (sideBar.current) sideBar.current.style.transform = `scaleY(${current})`;
     };
-
+    const measure = () => {
+      distance = document.documentElement.scrollHeight - document.documentElement.clientHeight;
+      handleScroll();
+    };
+    const observer = new ResizeObserver(measure);
+    observer.observe(document.body);
     window.addEventListener("scroll", handleScroll, { passive: true });
-    window.addEventListener("resize", handleScroll, { passive: true });
-    handleScroll();
+    window.addEventListener("resize", measure);
+    measure();
 
     return () => {
       window.removeEventListener("scroll", handleScroll);
-      window.removeEventListener("resize", handleScroll);
+      window.removeEventListener("resize", measure);
+      observer.disconnect();
     };
-  }, []);
+  }, [position]);
 
   const showRight = position === "right" || position === "both";
   const showTop = position === "top" || position === "both";
@@ -52,13 +55,13 @@ export default function ScrollProgress({
             backgroundColor: trackColor,
           }}
         >
-          <div
+          <div ref={topBar}
             style={{
               width: "100%",
               height: "100%",
               backgroundColor: color,
               transformOrigin: "left center",
-              transform: `scaleX(${progress})`,
+              transform: "scaleX(0)",
               willChange: "transform",
               transition: "transform 80ms ease-out",
             }}
@@ -78,13 +81,13 @@ export default function ScrollProgress({
             backgroundColor: trackColor,
           }}
         >
-          <div
+          <div ref={sideBar}
             style={{
               width: "100%",
               height: "100%",
               backgroundColor: color,
               transformOrigin: "top center",
-              transform: `scaleY(${progress})`,
+              transform: "scaleY(0)",
               willChange: "transform",
               transition: "transform 80ms ease-out",
             }}

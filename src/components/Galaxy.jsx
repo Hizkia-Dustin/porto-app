@@ -8,9 +8,63 @@ const INTRO_SECONDS = 2.2;
 
 const VERTEX = `#version 300 es
 in vec2 aPosition;
+in vec2 aCenter;
+uniform float uFracture;
+uniform vec2 uResolution;
+out vec2 vSky;
 void main() {
-  gl_Position = vec4(aPosition, 0.0, 1.0);
+  vSky = aPosition * 0.5 + 0.5;
+  vec2 offset = aPosition - aCenter;
+  float aspect = uResolution.x / uResolution.y;
+  float seed = fract(sin(dot(aCenter, vec2(35.7, 91.3))) * 1739.4);
+  float heading = seed * 6.28318;
+  float angle = uFracture * (seed - 0.5) * 4.0;
+  offset.x *= cos(uFracture * (0.8 + seed));
+  offset.x *= aspect;
+  offset = mat2(cos(angle), -sin(angle), sin(angle), cos(angle)) * offset;
+  offset.x /= aspect;
+  vec2 drift = vec2(cos(heading), sin(heading)) * (2.8 + seed);
+  vec2 xy = aCenter + offset + drift * uFracture * uFracture;
+  gl_Position = vec4(xy, 0.0, 1.0 - uFracture * (0.12 + 0.38 * seed));
 }`;
+
+// Clip each cell against its neighbours' bisectors. All its triangles share
+// one pivot, so only the irregular outer edges separate during the flight.
+function makeSkyFragments(columns, rows) {
+  let seed = 417;
+  const random = () => ((seed = (Math.imul(seed, 1664525) + 1013904223) >>> 0) / 4294967296);
+  const sites = Array.from({ length: columns * rows }, (_, index) => [
+    2 * (index % columns + 0.1 + 0.8 * random()) / columns - 1,
+    2 * (Math.floor(index / columns) + 0.1 + 0.8 * random()) / rows - 1,
+  ]);
+  const vertices = [];
+  for (const center of sites) {
+    const [cx, cy] = center;
+    let cell = [[-1, -1], [1, -1], [1, 1], [-1, 1]];
+    for (const neighbor of sites) {
+      if (neighbor === center) continue;
+      const [nx, ny] = neighbor;
+      const distance = ([x, y]) => (x - (cx + nx) / 2) * (nx - cx) * columns ** 2
+        + (y - (cy + ny) / 2) * (ny - cy) * rows ** 2;
+      const clipped = [];
+      cell.forEach((a, i) => {
+        const b = cell[(i + 1) % cell.length];
+        const da = distance(a), db = distance(b);
+        if (da <= 0) clipped.push(a);
+        if ((da <= 0) !== (db <= 0)) {
+          const t = da / (da - db);
+          clipped.push([a[0] + (b[0] - a[0]) * t, a[1] + (b[1] - a[1]) * t]);
+        }
+      });
+      cell = clipped;
+    }
+    for (let i = 1; i < cell.length - 1; i++) {
+      for (const point of [cell[0], cell[i], cell[i + 1]]) vertices.push(...point, cx, cy);
+    }
+  }
+  return new Float32Array(vertices);
+}
+const skyVertices = makeSkyFragments(8, 5);
 
 const FRAGMENT = `#version 300 es
 precision highp float;
@@ -43,6 +97,7 @@ uniform float uReveal;
 uniform float uMode;
 uniform vec3 uBackground;
 uniform float uOpacity;
+in vec2 vSky;
 out vec4 outColor;
 
 #define STAR_COLOR_CUTOFF 0.2
@@ -146,7 +201,7 @@ vec3 StarLayer(vec2 uv, vec2 radial, vec2 repelAt, float pushCells, float spread
 
 void main() {
   vec2 focalPx = uFocal * uResolution;
-  vec2 uv = (gl_FragCoord.xy - focalPx) / uResolution.y;
+  vec2 uv = (vSky * uResolution - focalPx) / uResolution.y;
   vec2 mouseNorm = uMouse - vec2(0.5);
 
   vec2 repelAt = vec2(0.0);
@@ -218,6 +273,7 @@ const start = (gl, palette, repel, warp) => {
   gl.attachShader(program, vertex);
   gl.attachShader(program, fragment);
   gl.bindAttribLocation(program, 0, 'aPosition');
+  gl.bindAttribLocation(program, 1, 'aCenter');
   gl.linkProgram(program);
   gl.deleteShader(vertex);
   gl.deleteShader(fragment);
@@ -263,6 +319,8 @@ const Galaxy = ({
   backgroundColor,
   opacity = 1,
   dpr,
+  maxFps = 0,
+  fractureRef,
   className = '',
   style,
   ...rest
@@ -298,7 +356,8 @@ const Galaxy = ({
     intro,
     backgroundColor,
     opacity: clamp(opacity, 0, 1),
-    dpr
+    dpr,
+    maxFps
   };
   const settingsRef = useRef(settings);
   useEffect(() => {
@@ -348,9 +407,12 @@ const Galaxy = ({
     const vao = gl.createVertexArray();
     gl.bindVertexArray(vao);
     gl.bindBuffer(gl.ARRAY_BUFFER, buffer);
-    gl.bufferData(gl.ARRAY_BUFFER, new Float32Array([-1, -1, 3, -1, -1, 3]), gl.STATIC_DRAW);
+    gl.bufferData(gl.ARRAY_BUFFER, skyVertices, gl.STATIC_DRAW);
     gl.enableVertexAttribArray(0);
-    gl.vertexAttribPointer(0, 2, gl.FLOAT, false, 0, 0);
+    gl.vertexAttribPointer(0, 2, gl.FLOAT, false, 16, 0);
+    gl.enableVertexAttribArray(1);
+    gl.vertexAttribPointer(1, 2, gl.FLOAT, false, 16, 8);
+    container.dataset.sky = 'ready';
 
     const probe = document.createElement('canvas').getContext('2d', { willReadFrequently: true });
     const reduce = window.matchMedia?.('(prefers-reduced-motion: reduce)').matches ?? false;
@@ -387,6 +449,7 @@ const Galaxy = ({
     };
     let raf = 0;
     let last = 0;
+    let nextPaint = 0;
     let visible = true;
 
     const render = () => {
@@ -435,13 +498,26 @@ const Galaxy = ({
       gl.uniform1f(u.uMode, mode);
       gl.uniform3fv(u.uBackground, background);
       gl.uniform1f(u.uOpacity, s.opacity);
-      gl.drawArrays(gl.TRIANGLES, 0, 3);
+      const fracture = fractureRef?.current ?? 0;
+      gl.uniform1f(u.uFracture, fracture);
+      if (fracture > 0) gl.clear(gl.COLOR_BUFFER_BIT);
+      gl.drawArrays(gl.TRIANGLES, 0, skyVertices.length / 4);
     };
 
     const frame = now => {
       raf = 0;
       if (!visible || document.hidden) return;
       const s = settingsRef.current;
+      if (s.maxFps > 0 && last) {
+        if (now + 1 < nextPaint) {
+          raf = requestAnimationFrame(frame);
+          return;
+        }
+        const interval = 1000 / s.maxFps;
+        nextPaint = Math.max(now, Math.min(nextPaint + interval, now + interval));
+      } else {
+        nextPaint = now + (s.maxFps > 0 ? 1000 / s.maxFps : 0);
+      }
       const dt = last ? clamp((now - last) / 1000, 0.0005, 0.05) : 1 / 60;
       last = now;
       const motion = s.disableAnimation || reduce ? 0 : 1;
@@ -500,11 +576,13 @@ const Galaxy = ({
     };
 
     const onPointerMove = event => {
+      if (!visible || document.hidden) return;
       locate(event);
       wake();
     };
 
     const onPointerDown = event => {
+      if (!visible || document.hidden) return;
       const s = settingsRef.current;
       locate(event);
       if (!pointer.inside || !s.clickWarp || reduce) return;
@@ -563,6 +641,7 @@ const Galaxy = ({
 
     return () => {
       cancelAnimationFrame(raf);
+      delete container.dataset.sky;
       wakeRef.current = null;
       resizeObserver.disconnect();
       intersection.disconnect();
@@ -578,7 +657,7 @@ const Galaxy = ({
       // React Strict Mode reuses this canvas on the next effect setup.
       // Delete owned resources without permanently losing its WebGL context.
     };
-  }, []);
+  }, [fractureRef]);
 
   return (
     <div

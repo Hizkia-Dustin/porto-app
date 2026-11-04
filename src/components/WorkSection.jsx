@@ -16,6 +16,7 @@ import styles from "./WorkSection.module.css";
 export default function WorkSection() {
   const rootRef = useRef(null);
   const stageRef = useRef(null);
+  const galaxyFracture = useRef(0);
   const trackRef = useRef(null);
   const canvasRef = useRef(null);
   const entryRef = useRef(null);
@@ -75,7 +76,7 @@ export default function WorkSection() {
       return;
     }
 
-    renderer.setPixelRatio(Math.min(window.devicePixelRatio, 1.75));
+    renderer.setPixelRatio(Math.min(window.devicePixelRatio, 1.25));
     renderer.outputColorSpace = THREE.SRGBColorSpace;
     renderer.setClearColor("#101413", 0);
     const scene = new THREE.Scene();
@@ -154,16 +155,29 @@ export default function WorkSection() {
     let visible = false;
     let frame = 0;
     let lastTime = 0;
-    let elapsed = 0;
+    let renderedCameraZ = null;
     let disposed = false;
     const playhead = { progress: 0 };
 
+    const departure = gsap.matchMedia();
+    if (CSS.supports("animation-timeline: view()")) {
+      departure.add("(prefers-reduced-motion: no-preference)", () => {
+        const syncSky = self => {
+          galaxyFracture.current = THREE.MathUtils.smootherstep(self.progress, 0.07, 0.94);
+        };
+        ScrollTrigger.create({
+          trigger: root, start: "bottom bottom", end: "bottom top",
+          onRefresh: syncSky, onUpdate: syncSky,
+        });
+        return () => { galaxyFracture.current = 0; };
+      });
+    }
     const trigger = ScrollTrigger.create({
       trigger: root,
       start: "top top",
       end: "bottom bottom",
-      onUpdate: self => { progress = self.progress; },
-      onRefresh: self => { progress = self.progress; },
+      onUpdate: self => { progress = self.progress; wake(); },
+      onRefresh: self => { progress = self.progress; wake(); },
     });
 
     function draw(time) {
@@ -172,33 +186,34 @@ export default function WorkSection() {
       const dt = Math.min(0.05, Math.max(0, (time - lastTime) / 1000 || 0.016));
       lastTime = time;
 
-      playhead.progress = motion.matches
+      playhead.progress = motion.matches || Math.abs(playhead.progress - progress) < 0.00001
         ? progress
         : THREE.MathUtils.damp(playhead.progress, progress, 14, dt);
 
       const sequence = sampleProjectSequence(playhead.progress);
       const state = sampleWorkJourney(sequence.intro, motion.matches);
-      const projectOpacity = THREE.MathUtils.smoothstep(playhead.progress, WORK_INTRO_END - 0.015, WORK_INTRO_END);
+      const projectOpacity = THREE.MathUtils.smoothstep(playhead.progress, WORK_INTRO_END - 0.015, WORK_INTRO_END) * (motion.matches ? 1 - sequence.exit : 1);
       projectGallery.style.opacity = String(projectOpacity);
       projectGallery.style.visibility = projectOpacity > 0 ? "visible" : "hidden";
-      projectGallery.inert = projectOpacity < 0.95;
-      const stripX = projectTrackX(sequence.gallery, viewportWidth, cardCenters.at(-1));
+      projectGallery.inert = projectOpacity < 0.95 || sequence.exit > 0.01;
+      const stripX = projectTrackX(sequence.gallery, viewportWidth, cardCenters.at(-1)) - (motion.matches ? 0 : viewportWidth * sequence.exit);
       strip.style.transform = `translate3d(${stripX}px, 0, 0)`;
       const focusX = viewportWidth / 2 - stripX;
       const nearest = cardCenters.reduce((best, center, i) => Math.abs(center - focusX) < Math.abs(cardCenters[best] - focusX) ? i : best, 0);
       if (nearest !== activeCard) { activeCard = nearest; setActiveProject(nearest); }
       cards.forEach((card, index) => {
         const offset = THREE.MathUtils.clamp((cardCenters[index] - focusX) / viewportWidth, -1, 1);
+        if (Math.abs(offset) === 1) return;
         card.style.setProperty("--orbit-angle", `${motion.matches ? 0 : offset * -12}deg`);
         card.style.setProperty("--orbit-scale", String(motion.matches ? 1 : 1 - Math.abs(offset) * 0.12));
         card.style.setProperty("--image-shift", `${motion.matches ? 0 : offset * -3}%`);
       });
 
       letters.forEach((letter, index) => {
-        const position = sampleWorkLetter(Math.floor(index / LETTER_COPIES), index % LETTER_COPIES, sequence.intro + sequence.gallery * 1.4, state.cameraZ, motion.matches);
-        letter.style.transform = `translate(-50%, -50%) translate3d(${viewportWidth / 2 + position.x * viewportHeight}px, ${viewportHeight / 2 + position.y * viewportHeight}px, 0)`;
-        letter.style.fontSize = `${position.size * viewportHeight}px`;
+        const position = sampleWorkLetter(Math.floor(index / LETTER_COPIES), index % LETTER_COPIES, sequence.intro + sequence.gallery * 1.4, state.cameraZ, motion.matches, sequence.gather);
         letter.style.opacity = String(position.opacity);
+        if (!position.opacity) return;
+        letter.style.transform = `translate(-50%, -50%) translate3d(${viewportWidth / 2 + position.x * viewportHeight}px, ${viewportHeight / 2 + position.y * viewportHeight}px, 0) scale(${position.size / 0.32})`;
       });
 
       camera.position.set(0, 0, state.cameraZ);
@@ -208,31 +223,28 @@ export default function WorkSection() {
 
       // Smooth upward lift: the work tunnel ascends, revealing the pristine black section
       track.style.transform = `translate3d(0, ${(-state.lift * 100).toFixed(3)}vh, 0)`;
-      stage.style.setProperty("--work-progress", playhead.progress);
-      stage.style.setProperty("--work-lift", state.lift);
 
-      if (!motion.matches) elapsed += dt;
-      particles.position.y = Math.sin(elapsed * 0.2) * 0.12;
-
-      // Only render WebGL while the tunnel is still partially or fully in view
-      if (state.lift < 0.999) {
+      if (state.lift < 0.999 && renderedCameraZ !== state.cameraZ) {
         renderer.render(scene, camera);
+        renderedCameraZ = state.cameraZ;
       }
 
-      frame = requestAnimationFrame(draw);
+      if (playhead.progress !== progress) wake();
     }
 
-    const wake = () => {
+    function wake() {
       if (!frame && visible && !document.hidden) frame = requestAnimationFrame(draw);
-    };
+    }
 
     const resize = () => {
       const width = canvas.clientWidth;
       const height = canvas.clientHeight;
       viewportWidth = width;
       viewportHeight = height;
+      lettersRef.current.style.fontSize = `${height * 0.32}px`;
       cardCenters = [...strip.children].map(card => card.offsetLeft + card.offsetWidth / 2);
       renderer.setSize(width, height, false);
+      renderedCameraZ = null;
       camera.aspect = width / Math.max(1, height);
       camera.updateProjectionMatrix();
       trigger.refresh();
@@ -250,6 +262,7 @@ export default function WorkSection() {
     intersection.observe(stage);
 
     document.addEventListener("visibilitychange", wake);
+    motion.addEventListener("change", wake);
     root.dataset.webgl = "ready";
     resize();
 
@@ -257,9 +270,11 @@ export default function WorkSection() {
       disposed = true;
       cancelAnimationFrame(frame);
       trigger.kill();
+      departure.revert();
       observer.disconnect();
       intersection.disconnect();
       document.removeEventListener("visibilitychange", wake);
+      motion.removeEventListener("change", wake);
       scene.traverse(object => object.geometry?.dispose());
       materials.forEach(m => m.dispose());
       renderer.dispose();
@@ -302,16 +317,19 @@ export default function WorkSection() {
           {/* Galaxy stays behind the tunnel throughout the camera journey. */}
           <div className={styles.blackPane}>
             <Galaxy
+              fractureRef={galaxyFracture}
+              dpr={0.7}
+              maxFps={30}
               transparent={false}
-              backgroundColor="#000000"
-              starColors={["#ffffff", "#e20b3a", "#ff8da1", "#edddd4"]}
+              backgroundColor="#160000"
+              starColors={["#f40c3f", "#a91a34", "#ff6683", "#843044"]}
               density={0.85}
               speed={0.55}
               starSpeed={0.3}
               glowIntensity={0.18}
               twinkleIntensity={0.4}
               flareIntensity={0.6}
-              layers={4}
+              layers={3}
               mouseRepulsion={true}
               mouseInteraction={true}
               repulsionStrength={2}

@@ -5,6 +5,89 @@
   color: #15100e;
   font-family: var(--font-mono), monospace;
 }
+.contact {
+  position: relative;
+  background: #f40c3f;
+  color: #160000;
+}
+.contactSheet {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  gap: 3rem;
+  min-height: 100svh;
+  padding: 2.2rem 4vw 4vw;
+  background: inherit;
+}
+/* The contact page stays behind the fragments while the reader scrolls through them. */
+@supports (animation-timeline: view()) {
+  @media (prefers-reduced-motion: no-preference) {
+    .contact { view-timeline-name: --contact-arrival; }
+    .contactSheet {
+      animation: uncoverContact linear both;
+      animation-timeline: --contact-arrival;
+      animation-range: entry 0% entry 100%;
+    }
+    .contactTitle {
+      animation: approachContact ease-out both;
+      animation-timeline: --contact-arrival;
+      animation-range: entry 7% entry 95%;
+    }
+    .contactHeader, .contactDirectory {
+      animation: contactDetails linear both;
+      animation-timeline: --contact-arrival;
+      animation-range: entry 56% entry 96%;
+    }
+  }
+}
+@keyframes uncoverContact {
+  from { transform: translateY(-100svh); }
+  to { transform: translateY(0); }
+}
+@keyframes approachContact {
+  from { transform: translateY(10svh) scale(.22); }
+  to { transform: none; }
+}
+@keyframes contactDetails {
+  from { opacity: 0; visibility: hidden; }
+  to { opacity: 1; visibility: visible; }
+}
+.contactHeader, .contactLink {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 2rem;
+}
+.contactHeader {
+  padding-bottom: 1rem;
+  border-bottom: 1px solid currentColor;
+  font-size: .8rem;
+  letter-spacing: .08em;
+}
+.contactTitle {
+  margin: 0;
+  font: 400 clamp(7rem, 14vw, 22rem)/.95 var(--font-bagke), sans-serif;
+  letter-spacing: -.035em;
+}
+.contactTitle em {
+  font-family: Georgia, serif;
+  letter-spacing: -.075em;
+}
+.contactDirectory {
+  display: grid;
+  grid-template-columns: 1fr 1.5fr;
+  align-items: end;
+  column-gap: 5vw;
+}
+.contactDirectory p { margin: 0; font: italic clamp(2rem, 3.5vw, 5rem)/1.1 Georgia, serif; }
+.contactDirectory p span { font: .85rem/2 var(--font-mono), monospace; }
+.contactLink { border-top: 1px solid; padding: 1rem 0; }
+.contactLink:last-child { border-bottom: 1px solid; }
+.contactLink strong { flex: 1; font: 400 clamp(1.75rem, 2.8vw, 4rem)/1 Georgia, serif; }
+.contactLink span { font-size: .85rem; }
+.contactLink i { font: 1.6rem/1 sans-serif; }
+.contact a:hover { text-decoration: underline; text-underline-offset: .16em; }
+.contact a:focus-visible { outline: 2px solid; outline-offset: 4px; }
 .hero {
   --hero-scale: 1;
   position: relative;

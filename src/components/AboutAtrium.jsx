@@ -109,7 +109,7 @@ export default function AboutAtrium() {
         document.fonts.delete(font);
         return;
       }
-      renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+      renderer.setPixelRatio(Math.min(window.devicePixelRatio, 1.25));
       renderer.setClearColor(RED, 1);
       renderer.outputColorSpace = THREE.SRGBColorSpace;
       const scene = new THREE.Scene();
@@ -721,7 +721,6 @@ export default function AboutAtrium() {
           panel.leaves.forEach((corners, leafIndex) => {
             const element = galleryRefs.current[i * 3 + leafIndex];
             if (!element) return;
-            projectPanel(element, corners, camera, width, height, 400, 650);
             const normalOpacity = 1 - THREE.MathUtils.smoothstep(distance, 0.25, 0.65);
             const isThisLeafTarget = isExhibitTarget && targetLeaf === leafIndex;
             element.style.setProperty("--exhibit-light", String(Math.max(0, 1 - distance) * 0.7 + (isThisLeafTarget ? zoomAmount * 0.65 : 0)));
@@ -732,6 +731,7 @@ export default function AboutAtrium() {
               finalOpacity = THREE.MathUtils.lerp(normalOpacity, 0, zoomAmount);
             }
             element.style.opacity = String(finalOpacity);
+            if (finalOpacity > 0) projectPanel(element, corners, camera, width, height, 400, 650);
             element.inert = (!isExhibitTarget && distance > 0.25) || (activeZoom && !isThisLeafTarget);
           });
         });

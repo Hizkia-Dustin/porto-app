@@ -7,6 +7,7 @@ import TargetCursor from "./TargetCursor";
 import Topography from "./Topography";
 import AboutAtrium from "./AboutAtrium";
 import WorkSection from "./WorkSection";
+import { museumExhibits } from "../lib/aboutExhibits.mjs";
 import { useLenis } from "lenis/react";
 import styles from "./Portfolio.module.css";
 
@@ -98,7 +99,7 @@ export default function Portfolio() {
           <nav className={styles.nav} aria-label="Main navigation">
             <a className="cursor-target" href="#about" data-cursor-label="ABOUT">ABOUT</a>
             <a className="cursor-target" href="#work" onClick={event => { if (lenis && !event.metaKey && !event.ctrlKey && !event.shiftKey && !event.altKey) { event.preventDefault(); lenis.scrollTo("#work", { duration: 1.5 }); history.replaceState(null, "", "#work"); } }} data-cursor-label="WORK">WORK</a>
-            <button className="cursor-target" type="button" onClick={() => openPanel("Contact")} data-cursor-label="CONTACT">CONTACT</button>
+            <a className="cursor-target" href="#contact" data-cursor-label="CONTACT">CONTACT</a>
           </nav>
         </header>
         <section className={styles.emptyStage} aria-label="Interactive topographic hero">
@@ -150,6 +151,25 @@ export default function Portfolio() {
       </section>
       <AboutAtrium />
       <WorkSection />
+      <section id="contact" className={styles.contact} aria-labelledby="contact-title">
+        <div className={styles.contactSheet}>
+        <header className={styles.contactHeader}>
+          <span>04 / CONTACT</span>
+          <a href="#home" aria-label="Back to top">BACK TO TOP ↑</a>
+        </header>
+        <h2 id="contact-title" className={styles.contactTitle}>CONTACT <em>ME.</em></h2>
+        <div className={styles.contactDirectory}>
+          <p>Hizkia Dustin<br /><span>UI/UX &amp; frontend</span></p>
+          <div>
+            {museumExhibits.flatMap(exhibit => exhibit.rows).filter(row => row.href).map(row => (
+              <a key={row.href} href={row.href} target="_blank" rel="noopener noreferrer" className={styles.contactLink}>
+                <strong>{row.title}</strong><span>{row.handle}</span><i aria-hidden="true">↗</i>
+              </a>
+            ))}
+          </div>
+        </div>
+        </div>
+      </section>
       <dialog className={styles.dialog} ref={dialog} onClick={(event) => {
         if (event.target === event.currentTarget) dialog.current.close();
       }}>

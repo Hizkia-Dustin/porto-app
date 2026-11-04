@@ -1,4 +1,4 @@
-@font-face { font-family: WorkDisplay; src: url('/fonts/Coluna_Rounded.otf') format('opentype'); font-display: swap; }
+@font-face { font-family: WorkDisplay; src: url('/fonts/Coluna.otf') format('opentype'); font-display: swap; }
 
 .work {
   position: relative;
@@ -14,6 +14,51 @@
   overflow: hidden;
   isolation: isolate;
   background: #101413;
+}
+
+@supports (animation-timeline: view()) {
+  @media (prefers-reduced-motion: no-preference) {
+    .work {
+      z-index: 1;
+      background: transparent;
+      pointer-events: none;
+      view-timeline-name: --work-departure;
+    }
+    .work[data-webgl='ready'] .stage {
+      pointer-events: auto;
+      background: transparent;
+      animation: passThrough linear forwards;
+    }
+    .work[data-webgl='ready'] .blackPane { animation: leaveGalaxy linear forwards; }
+    .work[data-webgl='ready'] .blackPane:has([data-sky='ready']) {
+      background: transparent;
+      animation-name: none;
+    }
+    .work[data-webgl='ready'] .solidGlyph { animation: hideWholeGlyph step-start forwards; }
+    .work[data-webgl='ready'] .shard { animation: flyApart cubic-bezier(.45,.04,.78,.55) forwards; }
+    .work[data-webgl='ready'] :is(.stage, .blackPane, .solidGlyph, .shard) {
+      animation-timeline: --work-departure;
+      animation-range: exit 0% exit 100%;
+    }
+  }
+}
+
+@keyframes passThrough {
+  from { transform: translateY(0); pointer-events: none; }
+  to { transform: translateY(100svh); pointer-events: none; visibility: hidden; }
+}
+@keyframes leaveGalaxy {
+  0%, 9% { opacity: 1; }
+  82%, 100% { opacity: 0; }
+}
+@keyframes hideWholeGlyph { to { visibility: hidden; } }
+@keyframes flyApart {
+  0%, 7% { visibility: visible; transform: perspective(96vh) translate3d(0,0,0); }
+  100% {
+    visibility: visible;
+    transform: perspective(96vh) translate3d(var(--fly-x), var(--fly-y), var(--fly-z))
+      rotateY(var(--spin)) rotateZ(var(--spin));
+  }
 }
 
 .track {
@@ -86,7 +131,7 @@
   overflow: hidden;
   font-family: WorkDisplay, Impact, sans-serif;
   font-weight: 400;
-  color: #ff433d;
+  color: #f40c3f;
 }
 
 .letters span {
@@ -96,11 +141,31 @@
   line-height: 1;
   opacity: 0;
   z-index: 2;
-  text-shadow: 2px 3px 0 #70191d;
+  text-shadow: .018em .03em 0 #540000;
   will-change: transform, opacity;
 }
 
 .letters span[data-layer='front'] { z-index: 5; }
+.solidGlyph, .shard { font: inherit; }
+.shard {
+  position: absolute;
+  inset: 0;
+  visibility: hidden;
+  transform-style: preserve-3d;
+  color: transparent;
+  text-shadow: none;
+}
+.shard::before, .shard::after {
+  position: absolute;
+  inset: 0;
+  content: attr(data-glyph);
+  clip-path: var(--cut);
+}
+.shard::before {
+  color: #650520;
+  transform: translate3d(.018em,.03em,-.019em);
+}
+.shard::after { color: #f40c3f; }
 
 .enter {
   position: absolute;
@@ -136,7 +201,7 @@
   width: 100%;
   height: 100svh;
   overflow: hidden;
-  background: #000000;
+  background: #160000;
 }
 
 .work[data-webgl='unavailable'] {
@@ -192,6 +257,9 @@
 }
 .projectMeta { padding-top: 13px; }
 .projectTitle {
+  background: #160000;
+  color: #ff5275;
+  font-family: ui-monospace, Consolas, monospace;
   display: flex;
   align-items: baseline;
   justify-content: space-between;
@@ -202,7 +270,7 @@
   text-shadow: 0 1px 5px #000;
 }
 .projectTitle h3 { margin: 0; font: inherit; letter-spacing: .035em; }
-.projectTitle > span { color: #ff716e; font-size: 9px; letter-spacing: .06em; }
+.projectTitle > span { font-size: 10px; letter-spacing: .06em; }
 .projectImage {
   object-fit: cover;
   transform: translateX(var(--image-shift, 0%)) scale(1.08);
