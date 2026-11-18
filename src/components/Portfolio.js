@@ -4,6 +4,7 @@ import { useEffect, useRef, useState } from "react";
 import Image from "next/image";
 import dynamic from "next/dynamic";
 import ScrollProgress from "./reactbits/ScrollProgress";
+import ViewportGate from "./ViewportGate";
 import { museumExhibits } from "../lib/aboutExhibits.mjs";
 import { useLenis } from "lenis/react";
 import styles from "./Portfolio.module.css";
@@ -111,6 +112,7 @@ export default function Portfolio() {
         <section className={styles.emptyStage} aria-label="Interactive topographic hero">
           <div className={styles.topography}>
             <Topography
+              dpr={1.25}
               color={light ? "#181818" : "#4f7cff"}
               lineCount={22}
               lineWidth={1.2}
@@ -155,8 +157,12 @@ export default function Portfolio() {
         </div>
       </div>
       </section>
-      <AboutAtrium />
-      <WorkSection />
+      <ViewportGate rootMargin="800px" minHeight="100vh">
+        <AboutAtrium />
+      </ViewportGate>
+      <ViewportGate rootMargin="800px" minHeight="100vh">
+        <WorkSection />
+      </ViewportGate>
       <section id="contact" className={styles.contact} aria-labelledby="contact-title">
         <div className={styles.contactSheet}>
         <header className={styles.contactHeader}>

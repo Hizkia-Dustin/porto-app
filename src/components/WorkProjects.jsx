@@ -14,7 +14,7 @@ export default function WorkProjects({ ref, stripRef, active, onSelect }) {
             type="button"
             className={styles.projectCard}
             data-active={index === active}
-            aria-current={index === active ? "true" : undefined}
+            aria-pressed={index === active}
             aria-label={`Fokus ${project.title} — ${project.category} (contoh proyek)`}
             onClick={() => onSelect(index)}
             style={{
