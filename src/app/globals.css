@@ -2,15 +2,63 @@
 @source "./";
 @source "../components/";
 
-:root { color-scheme: light; background: #e20b3a; color: #15100e; }
+:root {
+  color-scheme: dark;
+  --surface: #e20b3a;
+  --surface-rgb: 226, 11, 58;
+  --surface-accent: #f40c3f;
+  --ink: #15100e;
+  --contact-ink: #160000;
+  --work-bg: #101413;
+  --galaxy-bg: #160000;
+  --work-ink: #f40c3f;
+  --work-depth: #540000;
+  --shard-depth: #650520;
+  --work-copy: #edddd4;
+  --work-fallback: #ff5275;
+  --work-title-shadow: 0 1px 5px #000;
+  --light-wash: #ffd9bd40;
+  --light-edge: #ffb39818;
+  --light-rim: #ffcfb855;
+  background: var(--surface);
+  color: var(--ink);
+}
+:root[data-theme="light"] {
+  color-scheme: light;
+  --surface: #fafafa;
+  --surface-rgb: 250, 250, 250;
+  --surface-accent: #fafafa;
+  --ink: #151515;
+  --contact-ink: #151515;
+  --work-bg: #fafafa;
+  --galaxy-bg: #fafafa;
+  --work-ink: #151515;
+  --work-depth: #a8a8a8;
+  --shard-depth: #767676;
+  --work-copy: #151515;
+  --work-fallback: #151515;
+  --work-title-shadow: none;
+  --light-wash: #ffffff40;
+  --light-edge: #ffffff18;
+  --light-rim: #ffffff55;
+}
 * { box-sizing: border-box; }
 html { min-width: 1000px; }
-body { margin: 0; background: #e20b3a; font-family: var(--font-mono), monospace; -webkit-font-smoothing: antialiased; }
+body { margin: 0; background: var(--surface); font-family: var(--font-mono), monospace; -webkit-font-smoothing: antialiased; }
 a { color: inherit; text-decoration: none; }
 button { font: inherit; }
 button, a { -webkit-tap-highlight-color: transparent; }
 a:focus-visible, button:focus-visible, [tabindex]:focus-visible { outline: 2px solid currentColor; outline-offset: 5px; }
-::selection { background: #15100e; color: #e20b3a; }
+::selection { background: var(--ink); color: var(--surface); }
+
+::view-transition-old(root),
+::view-transition-new(root) {
+  animation-duration: 650ms;
+  animation-timing-function: cubic-bezier(.22, 1, .36, 1);
+}
+@media (prefers-reduced-motion: reduce) {
+  ::view-transition-old(root), ::view-transition-new(root) { animation-duration: 0s; }
+}
 
 /* Sembunyikan native scrollbar di semua browser */
 html,

@@ -12,8 +12,12 @@ import { projectScrollProgress, projectTrackX, sampleProjectSequence, WORK_INTRO
 import { sampleWorkJourney } from "../lib/workJourney.mjs";
 import { LETTER_COPIES, sampleWorkLetter } from "../lib/workLetters.mjs";
 import styles from "./WorkSection.module.css";
+import { bindSceneTheme } from "../lib/sceneTheme";
+import { useTheme } from "../lib/theme";
+import { createTunnelCards } from "../lib/tunnelCards";
 
 export default function WorkSection() {
+  const light = useTheme() === "light";
   const rootRef = useRef(null);
   const stageRef = useRef(null);
   const galaxyFracture = useRef(0);
@@ -158,6 +162,18 @@ export default function WorkSection() {
     let renderedCameraZ = null;
     let disposed = false;
     const playhead = { progress: 0 };
+    const mouse = { x: 0, y: 0, targetX: 0, targetY: 0 };
+
+    const handlePointerMove = (event) => {
+      const rect = stage.getBoundingClientRect();
+      if (!rect.width || !rect.height) return;
+      const nx = ((event.clientX - rect.left) / rect.width) * 2 - 1;
+      const ny = -(((event.clientY - rect.top) / rect.height) * 2 - 1);
+      mouse.targetX = THREE.MathUtils.clamp(nx, -1, 1);
+      mouse.targetY = THREE.MathUtils.clamp(ny, -1, 1);
+      wake();
+    };
+    stage.addEventListener("pointermove", handlePointerMove);
 
     const departure = gsap.matchMedia();
     if (CSS.supports("animation-timeline: view()")) {
@@ -216,7 +232,11 @@ export default function WorkSection() {
         letter.style.transform = `translate(-50%, -50%) translate3d(${viewportWidth / 2 + position.x * viewportHeight}px, ${viewportHeight / 2 + position.y * viewportHeight}px, 0) scale(${position.size / 0.32})`;
       });
 
-      camera.position.set(0, 0, state.cameraZ);
+      mouse.x = THREE.MathUtils.damp(mouse.x, mouse.targetX, 8, dt);
+      mouse.y = THREE.MathUtils.damp(mouse.y, mouse.targetY, 8, dt);
+
+      camera.position.set(mouse.x * 0.45, mouse.y * 0.35, state.cameraZ);
+      camera.rotation.z = -mouse.x * 0.025;
       canvas.style.opacity = state.tunnelOpacity;
       entry.style.opacity = String(state.entryOpacity);
       entry.inert = state.entryOpacity < 0.2;
@@ -224,12 +244,24 @@ export default function WorkSection() {
       // Smooth upward lift: the work tunnel ascends, revealing the pristine black section
       track.style.transform = `translate3d(0, ${(-state.lift * 100).toFixed(3)}vh, 0)`;
 
-      if (state.lift < 0.999 && renderedCameraZ !== state.cameraZ) {
+      if (state.lift < 0.999) {
+        tunnelCards.update({
+          time: time * 0.001,
+          cameraZ: state.cameraZ,
+          progress: playhead.progress,
+          dt,
+          mouse,
+          reducedMotion: motion.matches,
+        });
         renderer.render(scene, camera);
         renderedCameraZ = state.cameraZ;
       }
 
-      if (playhead.progress !== progress) wake();
+      if (!motion.matches && state.lift < 0.999) {
+        wake();
+      } else if (playhead.progress !== progress) {
+        wake();
+      }
     }
 
     function wake() {
@@ -264,9 +296,17 @@ export default function WorkSection() {
     document.addEventListener("visibilitychange", wake);
     motion.addEventListener("change", wake);
     root.dataset.webgl = "ready";
+    const unbindTheme = bindSceneTheme(scene, renderer, {
+      darkBackground: "#101413", alpha: 0,
+      invalidate: () => { renderedCameraZ = null; wake(); },
+    });
+    // Keep preview photographs in their original colors in either theme.
+    const tunnelCards = createTunnelCards(scene, () => { renderedCameraZ = null; wake(); });
     resize();
 
     return () => {
+      stage.removeEventListener("pointermove", handlePointerMove);
+      unbindTheme();
       disposed = true;
       cancelAnimationFrame(frame);
       trigger.kill();
@@ -275,6 +315,7 @@ export default function WorkSection() {
       intersection.disconnect();
       document.removeEventListener("visibilitychange", wake);
       motion.removeEventListener("change", wake);
+      tunnelCards.dispose();
       scene.traverse(object => object.geometry?.dispose());
       materials.forEach(m => m.dispose());
       renderer.dispose();
@@ -321,8 +362,9 @@ export default function WorkSection() {
               dpr={0.7}
               maxFps={30}
               transparent={false}
-              backgroundColor="#160000"
-              starColors={["#f40c3f", "#a91a34", "#ff6683", "#843044"]}
+              lightMode={light}
+              backgroundColor={light ? "#fafafa" : "#160000"}
+              starColors={light ? ["#777777", "#aaaaaa", "#dddddd", "#999999"] : ["#f40c3f", "#a91a34", "#ff6683", "#843044"]}
               density={0.85}
               speed={0.55}
               starSpeed={0.3}

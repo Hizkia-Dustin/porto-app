@@ -1,6 +1,7 @@
 import { IBM_Plex_Mono } from "next/font/google";
 import localFont from "next/font/local";
 import SmoothScroll from "@/components/SmoothScroll";
+import ThemeInit from "@/components/ThemeInit";
 import "./globals.css";
 
 const mono = IBM_Plex_Mono({
@@ -22,7 +23,10 @@ export const metadata = {
 
 export default function RootLayout({ children }) {
   return (
-    <html lang="id" className={`${mono.variable} ${bagke.variable}`}>
+    <html lang="id" data-theme="dark" suppressHydrationWarning className={`${mono.variable} ${bagke.variable}`}>
+      <head>
+        <ThemeInit />
+      </head>
       <body>
         <SmoothScroll>{children}</SmoothScroll>
       </body>

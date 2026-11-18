@@ -1,14 +1,14 @@
 .page {
   min-width: 1000px;
   overflow: clip;
-  background: #e20b3a;
-  color: #15100e;
+  background: var(--surface);
+  color: var(--ink);
   font-family: var(--font-mono), monospace;
 }
 .contact {
   position: relative;
-  background: #f40c3f;
-  color: #160000;
+  background: var(--surface-accent);
+  color: var(--contact-ink);
 }
 .contactSheet {
   display: flex;
@@ -92,25 +92,28 @@
   --hero-scale: 1;
   position: relative;
   width: 100%;
-  aspect-ratio: 1440 / 742;
+  height: 100svh;
   overflow: hidden;
-  background: #e20b3a;
-  color: #15100e;
+  background: var(--surface);
+  color: var(--ink);
 }
 .artboard {
   position: absolute;
   inset: 0 auto auto 0;
   width: 1440px;
-  height: 742px;
+  height: calc(100svh / var(--hero-scale));
+  display: flex;
+  flex-direction: column;
   transform: scale(var(--hero-scale));
   transform-origin: top left;
 }
 .header {
   position: relative;
+  flex: 0 0 100px;
   height: 100px;
   display: grid;
-  grid-template-columns: 105px 703px 46px 586px;
-  border-bottom: 1px solid #15100e;
+  grid-template-columns: 105px 703px 46px 44px 542px;
+  border-bottom: 1px solid var(--ink);
 }
 .headerLines {
   position: absolute;
@@ -174,7 +177,7 @@
   inset: 0;
   z-index: 1;
   border-radius: 0;
-  background: #15100e;
+  background: var(--ink);
   pointer-events: none;
   transform: translateY(100%);
   transition: transform 360ms cubic-bezier(0.4, 0, 0.2, 1);
@@ -200,7 +203,7 @@
 .socials img { display: block; }
 .pillIcon { width: 100%; height: 100%; justify-content: center; }
 .pillFaceAlt.pillIcon img { filter: invert(1); }
-.nav { display: flex; align-items: flex-start; gap: 137px; padding: 40px 0 0 89px; white-space: nowrap; font-size: 15.806px; line-height: normal; }
+.nav { display: flex; align-items: center; justify-content: space-around; padding: 0 24px; white-space: nowrap; font-size: 15.806px; line-height: normal; }
 .nav button { position: relative; }
 .nav button::after { position: absolute; left: 0; right: 0; bottom: -5px; height: 1px; background: currentColor; content: ""; transform: scaleX(0); transform-origin: left; transition: transform 160ms ease; }
 .nav button:hover::after, .nav button:focus-visible::after { transform: scaleX(1); }
@@ -211,10 +214,11 @@
 .nav button { padding: 0; }
 .emptyStage {
   position: relative;
-  height: 579.5px;
+  flex: 1;
+  min-height: 0;
   overflow: hidden;
-  border-bottom: 2px solid #15100e;
-  background: #e20b3a;
+  border-bottom: 2px solid var(--ink);
+  background: var(--surface);
 }
 .topography {
   position: absolute;
@@ -228,20 +232,20 @@
   inset: 0;
   pointer-events: none;
   background:
-    linear-gradient(180deg, #e20b3a 0%, transparent 13%, transparent 82%, #e20b3a 100%),
-    linear-gradient(90deg, #e20b3a33 0%, transparent 16%, transparent 84%, #e20b3a33 100%);
+    linear-gradient(180deg, var(--surface) 0%, transparent 13%, transparent 82%, var(--surface) 100%),
+    linear-gradient(90deg, rgba(var(--surface-rgb), .2) 0%, transparent 16%, transparent 84%, rgba(var(--surface-rgb), .2) 100%);
 }
-.marquee { position: absolute; top: 693px; left: 0; width: 1440px; height: 49px; overflow: hidden; }
+.marquee { position: relative; width: 100%; flex: 0 0 60px; overflow: hidden; display: flex; align-items: center; }
 .track { display: flex; width: max-content; padding-left: 8px; animation: marquee 42s linear infinite; }
 .marqueeGroup { display: flex; align-items: center; flex: none; gap: 8px; padding-right: 8px; font-size: 38px; font-weight: 500; line-height: 49px; white-space: nowrap; }
-.marqueeGroup i { flex: 0 0 11.91px; width: 11.91px; height: 11.91px; border-radius: 5.955px; background: #15100e; transform: rotate(4deg); margin: 0 0.4px; }
+.marqueeGroup i { flex: 0 0 11.91px; width: 11.91px; height: 11.91px; border-radius: 5.955px; background: var(--ink); transform: rotate(4deg); margin: 0 0.4px; }
 .marquee:hover .track, .marquee:focus .track { animation-play-state: paused; }
 @keyframes marquee { to { transform: translateX(-50%); } }
 .about {
   position: relative;
   width: 100%;
   height: 1600svh;
-  background: #e20b3a;
+  background: var(--surface);
 }
 .aboutStage {
   position: sticky;
@@ -250,8 +254,8 @@
   height: 100svh;
   container-type: inline-size;
   overflow: hidden;
-  border-top: 1px solid #15100e;
-  background: #e20b3a;
+  border-top: 1px solid var(--ink);
+  background: var(--surface);
   isolation: isolate;
 }
 .aboutCanvas { position: absolute; inset: 0; width: 100%; height: 100%; }
@@ -267,24 +271,24 @@
   transform-origin: 0 0;
   will-change: transform;
 }
-.aboutIndex { width: 84%; padding: 12px 38px; background: #101413; color: #e20b3a; font-size: 13px; line-height: 16px; letter-spacing: 0.22em; }
+.aboutIndex { width: 84%; padding: 12px 38px; background: #101413; color: var(--surface); font-size: 13px; line-height: 16px; letter-spacing: 0.22em; }
 .aboutText { padding: 48px 38px 0; }
 .aboutLead { margin: 0; width: 126%; transform: scaleX(0.79); transform-origin: left top; font: 400 46px/1.12 "Times New Roman", serif; letter-spacing: -1.8px; }
 .aboutBody { margin: 44px 0 0; width: 126%; transform: scaleX(0.79); transform-origin: left top; font: 400 27px/1.2 "Times New Roman", serif; letter-spacing: -0.7px; }
-.about:not([data-webgl="ready"]) .aboutCopy { top: 20%; left: 20%; background: #e20b3a; }
-.stackTotem { position: absolute; z-index: 2; top: 0; left: 0; width: 500px; height: 620px; padding: 24px 30px; transform-origin: 0 0; background: #101413; color: #e20b3a; opacity: 0; will-change: transform; }
+.about:not([data-webgl="ready"]) .aboutCopy { top: 20%; left: 20%; background: var(--surface); }
+.stackTotem { position: absolute; z-index: 2; top: 0; left: 0; width: 500px; height: 620px; padding: 24px 30px; transform-origin: 0 0; background: #101413; color: var(--surface); opacity: 0; will-change: transform; }
 .stackIndex { margin: 0 0 20px; font-size: 13px; letter-spacing: .2em; }
 .stackTotem h3 { margin: 0; font: 400 112px/.86 "AtriumDisplay", Impact, sans-serif; letter-spacing: -.03em; }
 .stackIntro { margin: 22px 0; font: 26px/1.12 "Times New Roman", serif; }
 .stackTotem ul { margin: 0; padding: 0; list-style: none; }
-.stackTotem li { border-top: 1px solid #e20b3a66; padding: 12px 0; }
+.stackTotem li { border-top: 1px solid rgba(var(--surface-rgb), .4); padding: 12px 0; }
 .stackTotem li span { display: block; margin-bottom: 5px; font-size: 10px; letter-spacing: .18em; }
 .stackTotem li strong { font-size: 21px; font-weight: 400; }
 .stackFooter { margin: 16px 0 0; font-size: 10px; letter-spacing: .13em; }
-.roomNavigation { position: absolute; z-index: 4; bottom: 26px; left: 5%; width: 90%; display: flex; align-items: center; gap: 30px; padding: 13px 18px; color: #e20b3a; background: #101413; font-size: 12px; letter-spacing: .13em; }
+.roomNavigation { position: absolute; z-index: 4; bottom: 26px; left: 5%; width: 90%; display: flex; align-items: center; gap: 30px; padding: 13px 18px; color: var(--surface); background: #101413; font-size: 12px; letter-spacing: .13em; }
 .roomNavigation button { display: flex; align-items: center; gap: 18px; border: 0; padding: 4px; background: transparent; color: inherit; cursor: pointer; font-size: inherit; letter-spacing: inherit; }
-.roomProgress { flex: 1; height: 1px; background: #e20b3a44; }
-.roomProgress i { display: block; width: 100%; height: 100%; transform: scaleX(var(--room-progress, 0)); transform-origin: left; background: #e20b3a; }
+.roomProgress { flex: 1; height: 1px; background: rgba(var(--surface-rgb), .267); }
+.roomProgress i { display: block; width: 100%; height: 100%; transform: scaleX(var(--room-progress, 0)); transform-origin: left; background: var(--surface); }
 .designTotem h3 { font-size: 100px; }
 .designTotem li strong { font-size: 20px; }
 .roomBack svg { transform: rotate(180deg); }
@@ -312,8 +316,8 @@
 }
 .about[data-webgl="unavailable"] .roomNavigation { display: none; }
 
-.dialog { width: 520px; max-width: 80vw; padding: 28px; border: 1px solid #15100e; background: #e20b3a; color: #15100e; font: 16px/1.6 var(--font-mono), monospace; }
-.dialog::backdrop { background: #15100e66; }
+.dialog { width: 520px; max-width: 80vw; padding: 28px; border: 1px solid var(--ink); background: var(--surface); color: var(--ink); font: 16px/1.6 var(--font-mono), monospace; }
+.dialog::backdrop { background: rgba(21, 16, 14, .4); }
 .dialogHeading { display: flex; align-items: center; justify-content: space-between; gap: 30px; }
 .dialogHeading h1 { margin: 0; font: 500 28px/1.2 var(--font-mono), monospace; text-transform: uppercase; }
 .dialogHeading button { padding: 0 8px; font-size: 30px; }
@@ -334,7 +338,7 @@
   padding: 26px 28px;
   transform-origin: 0 0;
   background: #101413;
-  color: #e20b3a;
+  color: var(--surface);
   opacity: 0;
   will-change: transform;
   display: flex;
@@ -348,26 +352,26 @@
   letter-spacing: 0.16em;
   font-family: var(--font-mono), monospace;
   padding-bottom: 12px;
-  border-bottom: 1px solid #e20b3a44;
+  border-bottom: 1px solid rgba(var(--surface-rgb), .267);
 }
 .museumNumber {
   margin: 0 0 4px;
   font: 400 130px/0.88 "AtriumDisplay", Impact, sans-serif;
-  color: #e20b3a;
+  color: var(--surface);
   letter-spacing: -0.02em;
 }
 .museumPanel h3 {
   margin: 0 0 10px;
   font: 400 44px/0.95 "AtriumDisplay", Impact, sans-serif;
   letter-spacing: 0.02em;
-  color: #e20b3a;
+  color: var(--surface);
 }
 .museumCategory {
   margin: 0 0 14px;
   font-size: 11px;
   letter-spacing: 0.18em;
   font-family: var(--font-mono), monospace;
-  color: #e20b3a;
+  color: var(--surface);
   opacity: 0.85;
   text-transform: uppercase;
 }
@@ -375,14 +379,14 @@
   display: block;
   margin: 0 0 8px;
   font: 400 48px/1 "AtriumDisplay", Impact, sans-serif;
-  color: #e20b3a;
+  color: var(--surface);
 }
 .museumRoleTag {
   margin: 0 0 6px;
   font-size: 11px;
   letter-spacing: 0.18em;
   font-family: var(--font-mono), monospace;
-  color: #e20b3a;
+  color: var(--surface);
   opacity: 0.85;
   text-transform: uppercase;
 }
@@ -390,23 +394,23 @@
   margin: 0 0 10px;
   font: 400 34px/1.08 "Times New Roman", serif;
   letter-spacing: -0.8px;
-  color: #e20b3a;
+  color: var(--surface);
 }
 .museumRole {
   margin: 0 0 12px;
   font-size: 13px;
   font-family: var(--font-mono), monospace;
   line-height: 1.4;
-  color: #e20b3a;
+  color: var(--surface);
   font-weight: 500;
   padding-bottom: 10px;
-  border-bottom: 1px solid #e20b3a44;
+  border-bottom: 1px solid rgba(var(--surface-rgb), .267);
 }
 .museumDescription {
   margin: 0 0 16px;
   font: 400 17px/1.34 "Times New Roman", serif;
   letter-spacing: -0.2px;
-  color: #e20b3a;
+  color: var(--surface);
   opacity: 0.95;
 }
 .museumAction {
@@ -417,17 +421,17 @@
   justify-content: space-between;
   gap: 12px;
   padding: 10px 16px;
-  border: 1px solid #e20b3a;
+  border: 1px solid var(--surface);
   font-size: 12px;
   font-family: var(--font-mono), monospace;
   letter-spacing: 0.12em;
-  color: #e20b3a;
+  color: var(--surface);
   text-decoration: none;
   background: transparent;
   transition: background 0.2s ease, color 0.2s ease;
 }
 .museumAction:hover {
-  background: #e20b3a;
+  background: var(--surface);
   color: #101413;
 }
 .museumCaption {
@@ -437,11 +441,11 @@
   right: 28px;
   margin: 0;
   padding-top: 12px;
-  border-top: 1px solid #e20b3a44;
+  border-top: 1px solid rgba(var(--surface-rgb), .267);
   font-size: 11px;
   letter-spacing: 0.15em;
   font-family: var(--font-mono), monospace;
-  color: #e20b3a;
+  color: var(--surface);
   opacity: 0.75;
 }
 
@@ -456,11 +460,11 @@
   align-items: center;
   justify-content: center;
   background: rgba(16, 20, 19, 0.94);
-  border: 1px solid rgba(226, 11, 58, 0.55);
+  border: 1px solid rgba(var(--surface-rgb), 0.55);
   border-radius: 9999px;
   padding: 4px;
   backdrop-filter: blur(12px);
-  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.55), 0 0 16px rgba(226, 11, 58, 0.18);
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.55), 0 0 16px rgba(var(--surface-rgb), 0.18);
   animation: zoomPillFadeDown 0.22s cubic-bezier(0.16, 1, 0.3, 1);
   pointer-events: auto;
 }
@@ -474,7 +478,7 @@
   gap: 10px;
   border: none;
   background: transparent;
-  color: #e20b3a;
+  color: var(--surface);
   padding: 8px 22px;
   border-radius: 9999px;
   font-family: var(--font-mono), monospace;
@@ -485,26 +489,26 @@
   transition: background 0.18s ease, color 0.18s ease;
 }
 .zoomOutBtn:hover {
-  background: #e20b3a;
+  background: var(--surface);
   color: #101413;
 }
 .zoomHint {
   font-size: 10px;
   letter-spacing: 0.08em;
   padding: 2px 8px;
-  background: rgba(226, 11, 58, 0.2);
-  border: 1px solid rgba(226, 11, 58, 0.45);
+  background: rgba(var(--surface-rgb), 0.2);
+  border: 1px solid rgba(var(--surface-rgb), 0.45);
   border-radius: 9999px;
   margin-left: 2px;
   transition: background 0.18s ease, color 0.18s ease, border-color 0.18s ease;
 }
 .zoomOutBtn:hover .zoomHint {
   background: #101413;
-  color: #e20b3a;
+  color: var(--surface);
   border-color: #101413;
 }
 .museumPanelZoomed {
-  box-shadow: 0 0 50px rgba(226, 11, 58, 0.45);
+  box-shadow: 0 0 50px rgba(var(--surface-rgb), 0.45);
 }
 .stackTotem::after,
 .museumPanel::after {
@@ -512,8 +516,8 @@
   position: absolute;
   inset: 0;
   pointer-events: none;
-  background: radial-gradient(ellipse 85% 75% at 50% -8%, #ffd9bd40 0%, #ffb39818 42%, transparent 80%);
-  box-shadow: inset 0 1px 0 #ffcfb855;
+  background: radial-gradient(ellipse 85% 75% at 50% -8%, var(--light-wash) 0%, var(--light-edge) 42%, transparent 80%);
+  box-shadow: inset 0 1px 0 var(--light-rim);
   opacity: var(--exhibit-light, 0);
 }
 .roomNavHidden {

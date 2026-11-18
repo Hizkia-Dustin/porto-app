@@ -3,8 +3,8 @@
 .work {
   position: relative;
   height: 1100svh;
-  background: #101413;
-  color: #e20b3a;
+  background: var(--work-bg);
+  color: var(--surface);
 }
 
 .stage {
@@ -13,7 +13,7 @@
   height: 100svh;
   overflow: hidden;
   isolation: isolate;
-  background: #101413;
+  background: var(--work-bg);
 }
 
 @supports (animation-timeline: view()) {
@@ -84,7 +84,7 @@
   right: 0;
   height: 32px;
   overflow: hidden;
-  background: #e20b3a;
+  background: var(--surface);
   color: #101413;
   border-bottom: 1px solid #101413;
   z-index: 25;
@@ -131,7 +131,7 @@
   overflow: hidden;
   font-family: WorkDisplay, Impact, sans-serif;
   font-weight: 400;
-  color: #f40c3f;
+  color: var(--work-ink);
 }
 
 .letters span {
@@ -141,7 +141,7 @@
   line-height: 1;
   opacity: 0;
   z-index: 2;
-  text-shadow: .018em .03em 0 #540000;
+  text-shadow: .018em .03em 0 var(--work-depth);
   will-change: transform, opacity;
 }
 
@@ -162,10 +162,10 @@
   clip-path: var(--cut);
 }
 .shard::before {
-  color: #650520;
+  color: var(--shard-depth);
   transform: translate3d(.018em,.03em,-.019em);
 }
-.shard::after { color: #f40c3f; }
+.shard::after { color: var(--work-ink); }
 
 .enter {
   position: absolute;
@@ -173,11 +173,11 @@
   right: 36px;
   pointer-events: auto;
   background: #101413;
-  color: #e20b3a;
+  color: var(--surface);
   padding: 14px 20px;
   font-size: 12px;
   letter-spacing: .1em;
-  border: 1px solid #e20b3a;
+  border: 1px solid var(--surface);
   text-decoration: none;
 }
 
@@ -201,7 +201,7 @@
   width: 100%;
   height: 100svh;
   overflow: hidden;
-  background: #160000;
+  background: var(--galaxy-bg);
 }
 
 .work[data-webgl='unavailable'] {
@@ -218,7 +218,7 @@
   z-index: 4;
   opacity: 0;
   visibility: hidden;
-  color: #edddd4;
+  color: var(--work-copy);
   pointer-events: none;
 }
 .projectStrip {
@@ -248,7 +248,7 @@
   transform-origin: center;
   will-change: transform;
 }
-.projectCard:focus-visible { outline: 2px solid #edddd4; outline-offset: 9px; }
+.projectCard:focus-visible { outline: 2px solid var(--work-copy); outline-offset: 9px; }
 .projectPreview {
   position: relative;
   height: var(--card-height);
@@ -257,8 +257,8 @@
 }
 .projectMeta { padding-top: 13px; }
 .projectTitle {
-  background: #160000;
-  color: #ff5275;
+  background: var(--galaxy-bg);
+  color: var(--work-fallback);
   font-family: ui-monospace, Consolas, monospace;
   display: flex;
   align-items: baseline;
@@ -267,7 +267,7 @@
   text-transform: uppercase;
   font-size: 11px;
   line-height: 1.4;
-  text-shadow: 0 1px 5px #000;
+  text-shadow: var(--work-title-shadow);
 }
 .projectTitle h3 { margin: 0; font: inherit; letter-spacing: .035em; }
 .projectTitle > span { font-size: 10px; letter-spacing: .06em; }

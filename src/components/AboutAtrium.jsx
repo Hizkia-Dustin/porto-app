@@ -10,6 +10,7 @@ import { floorHeight as floorY, groundedBoxGeometry, floorShadowGeometry } from 
 import { museumExhibits, roomStops } from "../lib/aboutExhibits.mjs";
 import { createAboutParticles } from "../lib/aboutParticles.mjs";
 import { createAboutLighting } from "../lib/aboutLighting.mjs";
+import { bindSceneTheme } from "../lib/sceneTheme";
 import styles from "./Portfolio.module.css";
 
 const WIDTH = 1487;
@@ -805,11 +806,13 @@ export default function AboutAtrium() {
         }
       };
       window.addEventListener("wheel", onWheel, { passive: true });
+      const unbindTheme = bindSceneTheme(scene, renderer, { darkBackground: RED, invalidate: wake });
       resize();
       camera.updateMatrixWorld();
       projectPanel(copy, panelCorners, camera, width, height);
       section.dataset.webgl = "ready";
       cleanup = () => {
+        unbindTheme();
         cancelAnimationFrame(frame);
         observer.disconnect();
         intersection.disconnect();

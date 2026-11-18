@@ -10,6 +10,8 @@ import WorkSection from "./WorkSection";
 import { museumExhibits } from "../lib/aboutExhibits.mjs";
 import { useLenis } from "lenis/react";
 import styles from "./Portfolio.module.css";
+import ThemeToggle from "./ThemeToggle";
+import { useTheme } from "../lib/theme";
 
 const assets = "/assets/figma/red-hero";
 const socialLinks = {
@@ -30,6 +32,7 @@ function RollingFace({ children, icon = false }) {
 }
 
 export default function Portfolio() {
+  const light = useTheme() === "light";
   const hero = useRef(null);
   const dialog = useRef(null);
   const [panel, setPanel] = useState("");
@@ -96,6 +99,7 @@ export default function Portfolio() {
               </button>
             ))}
           </div>
+          <ThemeToggle />
           <nav className={styles.nav} aria-label="Main navigation">
             <a className="cursor-target" href="#about" data-cursor-label="ABOUT">ABOUT</a>
             <a className="cursor-target" href="#work" onClick={event => { if (lenis && !event.metaKey && !event.ctrlKey && !event.shiftKey && !event.altKey) { event.preventDefault(); lenis.scrollTo("#work", { duration: 1.5 }); history.replaceState(null, "", "#work"); } }} data-cursor-label="WORK">WORK</a>
@@ -105,7 +109,7 @@ export default function Portfolio() {
         <section className={styles.emptyStage} aria-label="Interactive topographic hero">
           <div className={styles.topography}>
             <Topography
-              color="#4f7cff"
+              color={light ? "#181818" : "#4f7cff"}
               lineCount={22}
               lineWidth={1.2}
               elevation={1}
@@ -132,7 +136,7 @@ export default function Portfolio() {
               trail={0.3}
               parallax={0.5}
               intro
-              lightMode={false}
+              lightMode={light}
             />
           </div>
           <div className={styles.topographyShade} aria-hidden="true" />
