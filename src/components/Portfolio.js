@@ -2,16 +2,18 @@
 
 import { useEffect, useRef, useState } from "react";
 import Image from "next/image";
+import dynamic from "next/dynamic";
 import ScrollProgress from "./reactbits/ScrollProgress";
 import TargetCursor from "./TargetCursor";
 import Topography from "./Topography";
-import AboutAtrium from "./AboutAtrium";
-import WorkSection from "./WorkSection";
 import { museumExhibits } from "../lib/aboutExhibits.mjs";
 import { useLenis } from "lenis/react";
 import styles from "./Portfolio.module.css";
 import ThemeToggle from "./ThemeToggle";
 import { useTheme } from "../lib/theme";
+
+const AboutAtrium = dynamic(() => import("./AboutAtrium"), { ssr: false });
+const WorkSection = dynamic(() => import("./WorkSection"), { ssr: false });
 
 const assets = "/assets/figma/red-hero";
 const socialLinks = {
