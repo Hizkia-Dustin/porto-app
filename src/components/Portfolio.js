@@ -157,10 +157,10 @@ export default function Portfolio() {
         </div>
       </div>
       </section>
-      <ViewportGate rootMargin="800px" minHeight="100vh">
+      <ViewportGate id="about" rootMargin="400px" minHeight="100vh">
         <AboutAtrium />
       </ViewportGate>
-      <ViewportGate rootMargin="800px" minHeight="100vh">
+      <ViewportGate id="work" rootMargin="400px" minHeight="100vh">
         <WorkSection />
       </ViewportGate>
       <section id="contact" className={styles.contact} aria-labelledby="contact-title">

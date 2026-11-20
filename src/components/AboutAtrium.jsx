@@ -570,12 +570,15 @@ export default function AboutAtrium() {
 
           // Poster artwork plane
           const poster = document.createElement("canvas");
-          poster.width = 800; poster.height = 1300;
+          poster.width = 600; poster.height = 975;
           const ctx = poster.getContext("2d");
-          ctx.scale(2, 2);
+          ctx.scale(1.5, 1.5);
           drawPoster(ctx, museumExhibits[exhibitIndex], exhibitIndex, leafIndex);
           const texture = new THREE.CanvasTexture(poster);
           texture.colorSpace = THREE.SRGBColorSpace;
+          texture.minFilter = THREE.LinearFilter;
+          texture.magFilter = THREE.LinearFilter;
+          texture.generateMipmaps = false;
           textures.push(texture);
 
           const center = base + 2.85;

@@ -76,23 +76,23 @@ export default function PageLoader() {
     })));
 
     const reveal = async () => {
-      await Promise.all([Promise.race([assets, delay(650)]), delay(motion.matches ? 0 : 80)]);
+      await Promise.all([Promise.race([assets, delay(380)]), delay(motion.matches ? 0 : 50)]);
       if (disposed || completed) return;
       if (motion.matches) { finish(); return; }
       update(100);
       exitTimeline = gsap.timeline({ onComplete: finish })
         .to(screen.querySelector(`.${styles.mark}`), {
-          opacity: 1, scale: 1, duration: 0.35, ease: "expo.out",
+          opacity: 1, scale: 1, duration: 0.3, ease: "expo.out",
         }, 0)
         .to(screen.querySelectorAll(`.${styles.meta}, .${styles.counterMask}`), {
-          opacity: 0, y: -16, duration: 0.2, ease: "power2.in",
-        }, 0.2)
+          opacity: 0, y: -16, duration: 0.18, ease: "power2.in",
+        }, 0.15)
         .to(screen.querySelectorAll(`.${styles.slice} span`), {
-          yPercent: -110, duration: 0.35, stagger: 0.03, ease: "power3.inOut",
-        }, 0.25)
+          yPercent: -110, duration: 0.32, stagger: 0.025, ease: "power3.inOut",
+        }, 0.2)
         .to(screen.querySelectorAll(`.${styles.curtain}`), {
-          yPercent: -101, duration: 0.5, stagger: 0.04, ease: "power4.inOut",
-        }, 0.35);
+          yPercent: -101, duration: 0.42, stagger: 0.03, ease: "power4.inOut",
+        }, 0.28);
     };
     reveal();
     // Failed assets or an interrupted animation must never trap the visitor.
