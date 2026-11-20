@@ -55,20 +55,47 @@ function workshop(scene, name, x, z, angle, palette, contactShadow, build) {
   function person({ hip, knees, feet, elbows, hands, lean = 0.08, cap = false }) {
     const [hx, hy] = hip;
     const sx = hx + lean;
+
+    // Pelvis base connecting the hips smoothly to the jacket
+    oval(hx, hy - 0.04, 0, 0.20, 0.12, 0.22, dark);
+
     for (let side = 0; side < 2; side++) {
       const depth = side ? 0.15 : -0.15;
       const cloth = side ? dark : shade;
       const leg = [hx, hy, depth];
       const knee = [...knees[side], depth];
       const shoe = [feet[side], 0.1, depth];
-      rod(leg, knee, 0.17, 0.12, cloth);
-      rod(knee, shoe, 0.12, 0.08, cloth);
-      box(shoe[0] + 0.075, 0.085, depth, 0.36, 0.17, 0.2, dark);
+
+      // Hip ball joint: smooth spherical transition, zero sharp clipping corners
+      oval(hx, hy, depth, 0.125, 0.125, 0.115, cloth);
+
+      // Thigh: elegant architectural taper
+      rod(leg, knee, 0.125, 0.095, cloth);
+
+      // Knee joint: spherical cap bridging thigh and shin seamlessly
+      oval(knee[0], knee[1], depth, 0.095, 0.095, 0.085, cloth);
+
+      // Shin: sleek taper to ankle
+      rod(knee, shoe, 0.092, 0.068, cloth);
+
+      // Ankle joint
+      oval(shoe[0], 0.095, depth, 0.068, 0.065, 0.065, cloth);
+
+      // Sleek architectural minimalist shoe (Common Projects silhouette)
+      box(shoe[0] + 0.04, 0.065, depth, 0.22, 0.085, 0.11, dark);
+      box(shoe[0] + 0.12, 0.045, depth, 0.08, 0.055, 0.105, dark);
+      box(shoe[0] + 0.05, 0.012, depth, 0.25, 0.024, 0.115, metal);
+
+      // Arms
       const elbow = [...elbows[side], depth * 1.5];
       const hand = [...hands[side], depth * 1.5];
-      rod([sx, hy + 0.65, depth], elbow, 0.14, 0.085, cloth);
-      rod(elbow, hand, 0.085, 0.062, cloth);
-      oval(...hand, 0.09, 0.07, 0.07, skin);
+      // Shoulder ball joint
+      oval(sx, hy + 0.65, depth, 0.095, 0.095, 0.09, cloth);
+      rod([sx, hy + 0.65, depth], elbow, 0.115, 0.08, cloth);
+      // Elbow joint
+      oval(elbow[0], elbow[1], depth * 1.5, 0.08, 0.08, 0.07, cloth);
+      rod(elbow, hand, 0.08, 0.058, cloth);
+      oval(...hand, 0.085, 0.065, 0.065, skin);
     }
     // Tailored jacket / torso
     plate([[hx-0.22,hy-0.06],[hx+0.21,hy-0.06],[sx+0.18,hy+0.58],
@@ -215,11 +242,11 @@ export function addMuseumPeople(scene, code, design, exhibits, palette, shadow) 
     box(0.7, 1.12, 0.37, 0.30, 0.16, 0.015, screen);
   });
 
-  place("Visitor recording the gallery", social, 3.6, 1.4, 2.75, ({ person, box, dark, screen, accent }) => {
+  place("Visitor recording the gallery", social, 3.6, 1.4, 2.75, ({ person, box, rod, dark, screen, accent }) => {
     person({
       hip: [0, 1.24],
-      knees: [[-0.2, 0.63], [0.12, 0.62]],
-      feet: [-0.32, 0.17],
+      knees: [[-0.15, 0.64], [0.15, 0.64]],
+      feet: [-0.22, 0.18],
       elbows: [[0.06, 1.49], [0.26, 1.73]],
       hands: [[0.38, 1.63], [0.53, 2.12]],
     });
@@ -228,8 +255,9 @@ export function addMuseumPeople(scene, code, design, exhibits, palette, shadow) 
     box(0.53, 2.21, 0.22, 0.01, 0.26, 0.14, screen, -0.09);
     box(0.525, 2.30, 0.25, 0.015, 0.035, 0.035, accent, -0.09);
 
-    // Messenger camera bag
-    box(-0.16, 1.12, 0.24, 0.44, 0.48, 0.14, dark, 0.12);
-    box(-0.16, 1.12, 0.32, 0.08, 0.06, 0.025, accent, 0.12);
+    // Sleek crossbody camera bag resting naturally at the side hip with a strap (no bulky slab behind legs)
+    rod([0.06, 1.85, 0.05], [0.0, 1.10, 0.24], 0.014, 0.014, dark);
+    box(0.0, 1.05, 0.25, 0.15, 0.18, 0.08, dark);
+    box(0.0, 1.02, 0.295, 0.04, 0.03, 0.015, accent);
   });
 }
