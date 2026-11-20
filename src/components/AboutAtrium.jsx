@@ -10,6 +10,8 @@ import { floorHeight as floorY, groundedBoxGeometry, floorShadowGeometry } from 
 import { museumExhibits, roomStops } from "../lib/aboutExhibits.mjs";
 import { createAboutParticles } from "../lib/aboutParticles.mjs";
 import { createAboutLighting } from "../lib/aboutLighting.mjs";
+import { addArchiveFurniture } from "../lib/aboutSculpture.mjs";
+import { addMuseumPeople } from "../lib/aboutPeople.mjs";
 import { bindSceneTheme } from "../lib/sceneTheme";
 import styles from "./Portfolio.module.css";
 
@@ -327,6 +329,17 @@ export default function AboutAtrium() {
       }
       const codeTotem = createTotem(9, -16, Math.PI / 12);
       const designTotem = createTotem(17, -25, Math.PI / 24);
+      const figurePalette = {
+        dark: material("#151817"),
+        shade: material("#242b28"),
+        skin: material("#ece7de"),
+        hair: material("#101413"),
+        screen: material("#f6f6f6"),
+        metal: material("#303835"),
+        accent: material(RED),
+      };
+      addArchiveFurniture(scene, museumExhibits[0], figurePalette, contactShadow);
+      addMuseumPeople(scene, codeTotem.target, designTotem.target, museumExhibits, figurePalette, contactShadow);
       const stackCorners = codeTotem.corners;
       function drawPoster(ctx, exhibit, exhibitIndex, leafIndex) {
         ctx.fillStyle = INK;
