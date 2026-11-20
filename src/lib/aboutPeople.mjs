@@ -188,29 +188,29 @@ export function addMuseumPeople(scene, code, design, exhibits, palette, shadow) 
     box(0.70, 2.12, 0.10, 0.075, 0.18, 0.18, metal, -0.15);
   });
 
-  place("Crew hanging a framed print", exhibition, -3.8, 1.2, -0.18, ({ person, box, dark, screen, metal, accent }) => {
+  place("Crew hanging a framed print", exhibition, -6.2, 1.8, 0.20, ({ person, box, dark, screen, metal, accent }) => {
     person({
-      hip: [-0.48, 1.27],
-      knees: [[-0.62, 0.62], [-0.25, 0.65]],
+      hip: [-0.48, 1.15],
+      knees: [[-0.62, 0.56], [-0.25, 0.59]],
       feet: [-0.74, -0.11],
-      elbows: [[-0.22, 2.05], [-0.12, 2.19]],
-      hands: [[0.31, 2.19], [0.26, 2.58]],
+      elbows: [[-0.22, 1.85], [-0.12, 1.99]],
+      hands: [[0.31, 1.95], [0.26, 2.32]],
       cap: true,
     });
-    // Gallery partition panel backing
-    box(0.84, 1.39, -0.26, 1.12, 2.78, 0.10, dark);
+    // Freestanding gallery display panel in the wide corridor (clear of all partition leaves)
+    box(0.84, 1.15, -0.26, 1.05, 2.30, 0.08, dark);
 
     // Architectural gallery frame with white museum mat and red graphic poster
-    box(0.84, 2.15, -0.15, 0.96, 0.88, 0.08, dark);
-    box(0.84, 2.15, -0.09, 0.84, 0.76, 0.03, screen);
-    box(0.84, 2.15, -0.065, 0.60, 0.52, 0.02, dark);
-    box(0.84, 1.98, -0.060, 0.40, 0.06, 0.022, accent);
+    box(0.84, 1.85, -0.15, 0.90, 0.82, 0.08, dark);
+    box(0.84, 1.85, -0.09, 0.78, 0.70, 0.03, screen);
+    box(0.84, 1.85, -0.065, 0.54, 0.46, 0.02, dark);
+    box(0.84, 1.70, -0.060, 0.36, 0.05, 0.022, accent);
 
     // Crew step staging platform
-    box(0.81, 0.06, -0.26, 1.36, 0.12, 0.65, metal);
+    box(0.81, 0.05, -0.26, 1.25, 0.10, 0.60, metal);
   });
 
-  place("Logistics crew and equipment cart", events, 4.0, 1.5, -0.25, ({ person, box, rod, dark, screen, metal, accent }) => {
+  place("Logistics crew and equipment cart", events, -4.5, 2.4, 0.28, ({ person, box, rod, dark, screen, metal, accent }) => {
     person({
       hip: [-0.78, 1.15],
       knees: [[-1.1, 0.59], [-0.41, 0.68]],
@@ -242,7 +242,7 @@ export function addMuseumPeople(scene, code, design, exhibits, palette, shadow) 
     box(0.7, 1.12, 0.37, 0.30, 0.16, 0.015, screen);
   });
 
-  place("Visitor recording the gallery", social, 3.6, 1.4, 2.75, ({ person, box, rod, dark, screen, accent }) => {
+  place("Visitor recording the gallery", social, 4.4, 3.2, 2.65, ({ person, box, rod, dark, screen, accent }) => {
     person({
       hip: [0, 1.24],
       knees: [[-0.15, 0.64], [0.15, 0.64]],
